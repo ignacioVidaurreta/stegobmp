@@ -13,7 +13,7 @@ all:
 
 sanitized:
 	@echo "$(GREEN)Compiling with address sanitizer...$(NORMAL)"
-	$(CC) $(CFLAGS) -fsanitize-address $(FILES) -o $(EXEC_NAME)
+	$(CC) $(CFLAGS) -fsanitize=address $(FILES) -o $(EXEC_NAME)
 	@echo "$(GREEN)Done!$(NORMAL)"
 
 debug:
