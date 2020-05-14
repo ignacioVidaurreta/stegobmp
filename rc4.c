@@ -10,7 +10,7 @@ void swap(int vec[], int i, int j){
 
 int* get_shuffled_vector(int* init_vec, const int key[], size_t key_len){
 
-    int j;
+    int j = 0;
     for(int i = 0; i< 256; i++){
         j = (j + init_vec[i] + key[i % key_len]) % 256;
         swap(init_vec, i, j);
@@ -44,7 +44,7 @@ int* generate_result(int* init_vec, int N, int* output_stream){
     return output_stream;
 }
 
-
+// Todo: Fix naming
 int* get_output_stream(int * output_stream, int N){
     int* stream = malloc(256 * sizeof(int));
 
@@ -52,7 +52,7 @@ int* get_output_stream(int * output_stream, int N){
         stream[i] = i;
     }
 
-    const int secret_key[] = {2, 5, 2, 1, 9, 5,9, 1};
+    const int secret_key[] = {2, 5, 2, 1, 9, 5,9, 1}; //Todo cambiar a 6 bytes
     
     size_t key_len = sizeof(secret_key)/sizeof(secret_key[0]);
     stream = get_shuffled_vector(stream, secret_key, key_len);
