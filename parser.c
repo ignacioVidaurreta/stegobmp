@@ -5,6 +5,7 @@
 #include "include/parser.h"
 
 #define MAX_LEN 100
+typedef enum {MODE, BMP, OUT, STEG, ENC, CHAIN, PASS} parameter;
 
 struct config* init_config(struct config* config){
     config = malloc(sizeof(struct config));
@@ -30,158 +31,157 @@ bool is_invalid_param(int argc, char* argv[], int i){
     return i+1 == argc || argv[i+1][0] == '-';
 }
 
-int get_bmp_file(int argc, char* argv[], int i, struct config* config){
-    if(is_invalid_param(argc, argv, i)){
-        // TODO: Fail gracefully, error handling
-        printf("Error en bmp wacho\n");
+int get_bmp_file(char* filename, struct config* config){
+    
+    size_t len = strlen(filename);
+    if (len >= MAX_LEN){
         return 0;
-    }else{
-        strcpy(config->bmp_file, argv[i+1]);
-        printf("bmp: %s\n", config->bmp_file);
     }
+
+    strncpy(config->bmp_file, filename, len);
+    printf("BMP: %s\n", config->bmp_file);
+    
+    return 1;
+}
+
+int get_out_file(char* filename, struct config* config){
+    
+    size_t len = strlen(filename);
+    if(len >= MAX_LEN){
+        return 0;
+    }
+    strncpy(config->out_file, filename, len);
+    printf("Out: %s\n", config->out_file);
 
     return 1;
 }
 
-int get_out_file(int argc, char* argv[], int i, struct config* config){
-    if(is_invalid_param(argc, argv, i)){
-        // TODO: Fail gracefully, error handling
-        printf("Error en out wacho\n");
-        return 0;
+int set_steg_algorithm(char* steg_algo, struct config* config){
+
+    if(strcmp(steg_algo, "LSB1") == 0){
+        config->steg_algorithm = LSB1;
+    }else if (strcmp(steg_algo, "LSB4") == 0){
+        config->steg_algorithm = LSB4;
+    }else if(strcmp(steg_algo, "LSBI") == 0){
+        config->steg_algorithm = LSBI;
     }else{
-        strcpy(config->out_file, argv[i+1]);
-        printf("Out: %s\n", config->out_file);
+        printf("Steg algorithm invalido\n");
+        return 0;
     }
+
+    printf("STEG ALGO %s\n", steg_algo);
 
     return 1;
 }
 
-int set_steg_algorithm(int argc, char* argv[], int i, struct config* config){
-    if(is_invalid_param(argc, argv, i)){
-        //TODO: Fail gracefully, error handling
-        printf("Error en set steg wacho\n");
-        return 0;
+int set_encrypt_algorithm(char * enc_algo, struct config* config){
+    
+    if(strcmp(enc_algo, "aes128") == 0){
+        config->enc_algorithm = AES128;
+    }else if (strcmp(enc_algo, "aes192") == 0){
+        config-> enc_algorithm = AES192;
+    }else if(strcmp(enc_algo, "aes256") == 0){
+        config->enc_algorithm = AES256;
+    }else if(strcmp(enc_algo, "des") == 0){
+        config->enc_algorithm = DES;
     }else{
-        char* steg_algo = argv[i+1];
-        if(strcmp(steg_algo, "LSB1") == 0){
-            config->steg_algorithm = LSB1;
-        }else if (strcmp(steg_algo, "LSB4") == 0){
-            config->steg_algorithm = LSB4;
-        }else if(strcmp(steg_algo, "LSBI") == 0){
-            config->steg_algorithm = LSBI;
-        }else{
-            printf("Steg algorithm invalido\n");
+        printf("Algoritmo de encripcion invalido\n");
+        return 0;
+    }
+    
+    printf("ENC: %s\n", enc_algo);
+    return 1;
+}
+
+int set_chaining_mode(char* mode, struct config* config){
+    
+    if(strcmp(mode, "ECB") == 0){
+        config->enc_mode = ECB;
+    }else if (strcmp(mode, "CFB") == 0){
+        config-> enc_mode = CFB;
+    }else if(strcmp(mode, "OFB") == 0){
+        config->enc_mode = OFB;
+    }else if(strcmp(mode, "CBC") == 0){
+        config->enc_mode = CBC;
+    }else{
+        printf("Modo de encadenamiento invalido\n");
+        return 0;
+    }
+    
+    printf("CHAIN MODE: %s\n", mode);
+    return 1;
+}
+
+
+int set_password(char* pass, struct config* config){
+    
+    size_t len = strlen(pass);
+    if(len >= MAX_LEN){
+        return 0;
+    }
+
+    strncpy(config->password, pass, len);
+    printf("Pass: %s\n", config->password);
+
+    return 1;
+}
+
+int parse_param(int argc, char* argv[], int i, struct config* config, parameter given_param){
+    if(is_invalid_param(argc, argv, i)){
+        printf("Error seteando %d wacho\n", given_param);
+        return 0;
+    }
+
+    switch(given_param){
+        case BMP:
+            return get_bmp_file(argv[i+1], config);
+        case OUT:
+            return get_out_file(argv[i+1], config);
+        case STEG:
+            return set_steg_algorithm(argv[i+1], config);
+        case ENC:
+            return set_encrypt_algorithm(argv[i+1], config);
+        case CHAIN:
+            return set_chaining_mode(argv[i+1], config);
+        case PASS:
+            return set_password(argv[i+1], config);
+        default:
             return 0;
-        }
     }
 
-    return 1;
-}
-
-int set_encrypt_algorithm(int argc, char* argv[], int i, struct config* config){
-    if(is_invalid_param(argc, argv, i)){
-        printf("Error en set encrypt wacho");
-        return 0;
-    }else{
-        char* algorithm = argv[i+1];
-        if(strcmp(algorithm, "aes128") == 0){
-            config->enc_algorithm = AES128;
-        }else if (strcmp(algorithm, "aes192") == 0){
-            config-> enc_algorithm = AES192;
-        }else if(strcmp(algorithm, "aes256") == 0){
-            config->enc_algorithm = AES256;
-        }else if(strcmp(algorithm, "des") == 0){
-            config->enc_algorithm = DES;
-        }else{
-            printf("Algoritmo de encripcion invalido\n");
-            return 0;
-        }
-    }
-
-    return 1;
-}
-
-int set_chaining_mode(int argc, char* argv[], int i, struct config* config){
-    if(is_invalid_param(argc, argv, i)){
-        printf("Error en set chaining mode wacho");
-        return 0;
-    }else{
-        char* mode = argv[i+1];
-        if(strcmp(mode, "ECB") == 0){
-            config->enc_mode = ECB;
-        }else if (strcmp(mode, "CFB") == 0){
-            config-> enc_mode = CFB;
-        }else if(strcmp(mode, "OFB") == 0){
-            config->enc_mode = OFB;
-        }else if(strcmp(mode, "CBC") == 0){
-            config->enc_mode = CBC;
-        }else{
-            printf("Modo de encadenamiento invalido\n");
-            return 0;
-        }
-    }
-
-    return 1;
-}
-
-
-int set_password(int argc, char* argv[], int i, struct config* config){
-    if(is_invalid_param(argc, argv, i)){
-        printf("Error seteando la pass wacho");
-        return 0;
-    }else{
-        char * pass = argv[i+1];
-        size_t len = strlen(pass);
-        if(len >= MAX_LEN){
-            return 0;
-        }
-        strncpy(config->password, pass, len);
-    }
-
-    printf("%s\n", config->password);
-
-    return 1;
-
+    return 0;
 }
 struct config* parse_arguments(int argc, char* argv[]){
 
     struct config* program_config = init_config(program_config);
     bool missing_mode = true;
-
     for(int i=1; i<argc; i++){
+        parameter mode;
         char* param = argv[i];
         if(strcmp(param, "-embed") == 0 || strcmp(param, "-extract") == 0){
+            mode = MODE;
             program_config->mode = (strcmp(param, "-embed") == 0)?EMBED:EXTRACT;
             missing_mode = false;
         }else if(strcmp(param, "-p") == 0){
-            if(get_bmp_file(argc, argv, i, program_config) == 0){
-                return program_config;
-            }
-            i++; // Skip the argument of -p
+            mode = BMP;
         }else if(strcmp(param, "-out") == 0){
-            if(get_out_file(argc, argv, i, program_config) == 0){
-                return program_config;
-            }
-            i++; //Skip the argument of -out
+            mode = OUT;
         }else if(strcmp(param, "-steg") == 0){
-            if(set_steg_algorithm(argc, argv, i, program_config) == 0){
-                return program_config;
-            }
-            printf("ALG: %d\n", program_config->steg_algorithm);
-            i++; // Skip the argument of -steg
+            mode = STEG;
         }else if(strcmp(param, "-a") == 0){
-            if(set_encrypt_algorithm(argc, argv, i, program_config) == 0){
-                return program_config;
-            }
+            mode = ENC;
         }else if(strcmp(param, "-m") == 0){
-            if(set_chaining_mode(argc, argv, i, program_config) == 0){
-                return program_config;
-            }
+            mode = CHAIN;
         }else if(strcmp(param, "-pass") == 0){
-            if(set_password(argc, argv, i, program_config) == 0){
-                return program_config;
-            }
+            mode = PASS;
         }
+        if(mode != MODE){
+            if(parse_param(argc, argv, i, program_config, mode) == 0){
+            return program_config;
+            }
+            i++; // Skip the param value (not valid for MODE)
+        }
+        
 
     }
 
