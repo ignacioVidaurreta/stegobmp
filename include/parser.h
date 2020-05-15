@@ -23,12 +23,14 @@ struct config{
     char * in_file;
     char * bmp_file;
     char * out_file;
+    char* password;
 
     int steg_algorithm;
     enc_alg enc_algorithm;
     chain_mode enc_mode;
 
-    char* password;
+    FILE* error_log;
+    FILE* info_log;
 };
 
 struct config* init_config(struct config* config);

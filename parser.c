@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "include/parser.h"
+#include "include/logging.h"
 
 #define MAX_LEN 100
 typedef enum {MODE, BMP, OUT, STEG, ENC, CHAIN, PASS} parameter;
@@ -10,10 +11,12 @@ typedef enum {MODE, BMP, OUT, STEG, ENC, CHAIN, PASS} parameter;
 struct config* init_config(struct config* config){
     config = malloc(sizeof(struct config));
 
-    config->in_file  = malloc(MAX_LEN * sizeof(char));
-    config->bmp_file = malloc(MAX_LEN * sizeof(char));
-    config->out_file = malloc(MAX_LEN * sizeof(char));
-    config->password = malloc(MAX_LEN * sizeof(char));
+    config->in_file   = malloc(MAX_LEN * sizeof(char));
+    config->bmp_file  = malloc(MAX_LEN * sizeof(char));
+    config->out_file  = malloc(MAX_LEN * sizeof(char));
+    config->password  = malloc(MAX_LEN * sizeof(char));
+    config->error_log = fopen("log/stegobmp_error.log", "w+");
+    config->info_log  = fopen("log/stegobmp_info.log", "w+");
 
     return config;
 }
@@ -23,6 +26,9 @@ void free_config(struct config* config){
     free(config->bmp_file);
     free(config->out_file);
     free(config->password);
+
+    fclose(config->error_log);
+    fclose(config->info_log);
 
     free(config);
 }
@@ -65,7 +71,7 @@ int set_steg_algorithm(char* steg_algo, struct config* config){
     }else if(strcmp(steg_algo, "LSBI") == 0){
         config->steg_algorithm = LSBI;
     }else{
-        printf("Steg algorithm invalido\n");
+        log_error("Steganography Algorithm doesn't exist\n", config);
         return 0;
     }
 
@@ -186,7 +192,9 @@ struct config* parse_arguments(int argc, char* argv[]){
     }
 
     if(missing_mode){
-        printf("Error: Must specify if you are trying to embed an image or extract an embedde image\n");
+        printf("[Error] Must specify if you are trying to embed an image or extract an embedde image\n");
+        log_error("Must specify if you are trying to embed an image or extract an embedde image\n", program_config);
+        
     }
 
     return program_config;

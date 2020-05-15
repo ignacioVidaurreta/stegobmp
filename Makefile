@@ -8,6 +8,7 @@ DEBUG_NAME = stegobmp_debug
 .PHONY = clean
 all:
 	@echo "$(GREEN)Compiling ... $(NORMAL)"
+	@mkdir -p log
 	$(CC) $(CFLAGS) $(FILES) -o $(EXEC_NAME)
 	@echo "$(GREEN)Done!$(NORMAL)"
 
