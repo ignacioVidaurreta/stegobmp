@@ -6,7 +6,6 @@
 #include "include/logging.h"
 
 #define MAX_LEN 100
-typedef enum {MODE, BMP, OUT, STEG, ENC, CHAIN, PASS} parameter;
 
 struct config* init_config(struct config* config){
     config = malloc(sizeof(struct config));
@@ -15,8 +14,8 @@ struct config* init_config(struct config* config){
     config->bmp_file  = malloc(MAX_LEN * sizeof(char));
     config->out_file  = malloc(MAX_LEN * sizeof(char));
     config->password  = malloc(MAX_LEN * sizeof(char));
-    config->error_log = fopen("log/stegobmp_error.log", "w+");
-    config->info_log  = fopen("log/stegobmp_info.log", "w+");
+    config->error_log = fopen("log/stegobmp_error.log", "a");
+    config->info_log  = fopen("log/stegobmp_info.log", "a");
 
     return config;
 }
@@ -45,7 +44,7 @@ int get_bmp_file(char* filename, struct config* config){
     }
 
     strncpy(config->bmp_file, filename, len);
-    printf("BMP: %s\n", config->bmp_file);
+    log_parameter(BMP, config);
     
     return 1;
 }
@@ -71,7 +70,7 @@ int set_steg_algorithm(char* steg_algo, struct config* config){
     }else if(strcmp(steg_algo, "LSBI") == 0){
         config->steg_algorithm = LSBI;
     }else{
-        log_error("Steganography Algorithm doesn't exist\n", config);
+        log_error("Steganography algorithm doesn't exist\n", config);
         return 0;
     }
 
@@ -157,9 +156,22 @@ int parse_param(int argc, char* argv[], int i, struct config* config, parameter 
 
     return 0;
 }
+
+void init_log_message(char* program_name, int arg_num, struct config* program_config){
+    char format_info[100] = {'\0'};
+    if( arg_num != 1){
+        sprintf(format_info, "Running %s with %d arguments", program_name, arg_num);
+    }else{
+        sprintf(format_info, "Running %s with %d argument", program_name, arg_num);
+    }
+
+    log_info(format_info, program_config);
+}
+
 struct config* parse_arguments(int argc, char* argv[]){
 
     struct config* program_config = init_config(program_config);
+    init_log_message(argv[0], argc, program_config);
     bool missing_mode = true;
     for(int i=1; i<argc; i++){
         parameter mode;

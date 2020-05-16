@@ -15,6 +15,7 @@ typedef enum {AES128, AES192, AES256, DES } enc_alg;
 
 typedef enum {ECB, CFB, OFB, CBC} chain_mode;
 
+typedef enum {MODE, BMP, OUT, STEG, ENC, CHAIN, PASS} parameter;
 #include <stdbool.h>
 
 struct config{
