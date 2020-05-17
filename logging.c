@@ -76,30 +76,28 @@ void log_parameter(parameter param, struct config* config){
     switch(param){
         case BMP:
             sprintf(message, "Nombre del archivo BMP a usar: %s", config->bmp_file);
-            log_info(message, config);
             break;
         case OUT:
             sprintf(message, "Nombre del archivo que contiene el output: %s", config->out_file);
-            log_info(message, config);
             break;
         case STEG:
             sprintf(message, "Nombre del algoritmo de steganografia a usar: %s",
                     get_steg_name(config->steg_algorithm));
-            log_info(message, config);
             break;
         case ENC:
             sprintf(message, "Nombre del algoritmo de encripcion a usar: %s",
                     get_enc_name(config->enc_algorithm));
-            log_info(message, config);
             break;
         case CHAIN:
             sprintf(message, "Nombre del algoritmo de encadenamiento a usar: %s",
                     get_chain_alg_name(config->enc_algorithm));
-            log_info(message, config);
-
+            break;
         default:
             log_error("Unknown parameter", config);
+            return;
     }
+
+    log_info(message, config);
 
     free(timestamp);
     free(message);
