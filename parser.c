@@ -56,7 +56,7 @@ int get_out_file(char* filename, struct config* config){
         return 0;
     }
     strncpy(config->out_file, filename, len);
-    printf("Out: %s\n", config->out_file);
+    log_parameter(OUT, config);
 
     return 1;
 }
@@ -70,11 +70,11 @@ int set_steg_algorithm(char* steg_algo, struct config* config){
     }else if(strcmp(steg_algo, "LSBI") == 0){
         config->steg_algorithm = LSBI;
     }else{
-        log_error("Steganography algorithm doesn't exist\n", config);
+        log_error("El algoritmo de Steganografiado insertado es invalido", config);
         return 0;
     }
 
-    printf("STEG ALGO %s\n", steg_algo);
+    log_parameter(STEG, config);
 
     return 1;
 }
@@ -90,11 +90,11 @@ int set_encrypt_algorithm(char * enc_algo, struct config* config){
     }else if(strcmp(enc_algo, "des") == 0){
         config->enc_algorithm = DES;
     }else{
-        printf("Algoritmo de encripcion invalido\n");
+        log_error("Algoritmo de encripcion invalido", config);
         return 0;
     }
     
-    printf("ENC: %s\n", enc_algo);
+    log_parameter(ENC, config);
     return 1;
 }
 
@@ -109,11 +109,11 @@ int set_chaining_mode(char* mode, struct config* config){
     }else if(strcmp(mode, "CBC") == 0){
         config->enc_mode = CBC;
     }else{
-        printf("Modo de encadenamiento invalido\n");
+        log_error("Modo de encadenamiento invalido", config);
         return 0;
     }
     
-    printf("CHAIN MODE: %s\n", mode);
+    log_parameter(CHAIN, config);
     return 1;
 }
 
@@ -126,14 +126,13 @@ int set_password(char* pass, struct config* config){
     }
 
     strncpy(config->password, pass, len);
-    printf("Pass: %s\n", config->password);
 
     return 1;
 }
 
 int parse_param(int argc, char* argv[], int i, struct config* config, parameter given_param){
     if(is_invalid_param(argc, argv, i)){
-        printf("Error seteando %d wacho\n", given_param);
+        log_error("Parametro(s) invalido(s)", config);
         return 0;
     }
 
