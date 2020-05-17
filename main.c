@@ -10,7 +10,7 @@ int main(int argc, char * argv[]){
 
     program_config = parse_arguments(argc, argv);
     
-    log_info("Programa terminado \n\n", program_config);
-    free_config(program_config);
-    //rc4();
+    // log_info("Programa terminado \n\n", program_config);
+    // free_config(program_config);
+    rc4();
 }
