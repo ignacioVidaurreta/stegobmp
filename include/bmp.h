@@ -2,12 +2,18 @@
 #define BMP_H
 
 typedef struct {
-    unsigned char red;
-    unsigned char green;
     unsigned char blue;
+    unsigned char green;
+    unsigned char red;
 } pixel;
 
-pixel** bmp_to_matrix(const char* filename);
+typedef struct {
+    pixel** matrix;
+    unsigned int width;
+    unsigned int height;
+} information;
+
+information* bmp_to_matrix(const char* filename);
 
 
 
