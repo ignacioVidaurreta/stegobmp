@@ -79,7 +79,6 @@ information* bmp_to_matrix(const char* filename) {
 
     bmp_header* header = malloc(sizeof(*header));
     fread(header,sizeof(*header),1,file);
-    print_header_info(header);
 
     unsigned int width = header->bmp_width;
     unsigned int height = header->bmp_height;
