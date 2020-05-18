@@ -47,10 +47,10 @@ void print_header_info(bmp_header* header) {
     printf("Important Colour Counter: %d\n", header->important_colour_counter);
 }
 
-void print_pixel_matrix(pixel** matrix, unsigned int width, unsigned int height) {
-    for(int i=1; i<2; i++) {
-        for(int j=0; j<height; j++) {
-            printf("[b:%d, g:%d, r:%d],", matrix[i][j].blue, matrix[i][j].green, matrix[i][j].red);
+void print_pixel_matrix(pixel*** matrix, unsigned int height, unsigned int width) {
+    for(int i=0; i<height; i++) {
+        for(int j=0; j<width; j++) {
+            printf("[b:%d, g:%d, r:%d],", matrix[i][j]->blue, matrix[i][j]->green, matrix[i][j]->red);
         }
         printf("\n");
     }
@@ -60,8 +60,11 @@ void free_header(bmp_header* header) {
     free(header);
 }
 
-void free_pixel_matrix(pixel** matrix, unsigned int width) {
-    for(int i=0; i<width; i++) {
+void free_pixel_matrix(pixel*** matrix, unsigned int height, unsigned int width) {
+    for(int i=0; i<height; i++) {
+        for(int j=0; j<width;j++){
+            free(matrix[i][j]);
+        }
         free(matrix[i]);
     }
     free(matrix);
@@ -80,22 +83,24 @@ information* bmp_to_matrix(const char* filename) {
     bmp_header* header = malloc(sizeof(*header));
     fread(header,sizeof(*header),1,file);
 
-    unsigned int width = header->bmp_width;
     unsigned int height = header->bmp_height;
-    pixel** matrix = malloc(sizeof(*matrix)*width);
-    for(int i=0; i<width; i++) {
-        matrix[i] = malloc(sizeof(*(matrix[i]))*height);
-    }
-    for(int i=0; i<width; i++) {
-        for(int j=0; j<height; j++) {
-            fread((&(matrix[i][j])),sizeof(pixel),1,file);
+    unsigned int width = header->bmp_width;
+    pixel*** matrix = malloc(sizeof(*matrix)*height);
+    for(int i=0; i<height; i++) {
+        matrix[i] = malloc(sizeof(**matrix)*width);
+        for(int j=0; j<width; j++) {
+            matrix[i][j] = malloc(sizeof(pixel));
         }
     }
-
+    for(int i=0; i<height; i++) {
+        for(int j=0; j<width; j++) {
+            fread(matrix[i][j],sizeof(pixel),1,file);
+        }
+    }
     information* info = malloc(sizeof(*info));
     info->matrix = matrix;
-    info->width = width;
     info->height = height;
+    info->width = width;
 
     free_header(header);
 
