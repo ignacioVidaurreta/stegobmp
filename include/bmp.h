@@ -8,9 +8,9 @@ typedef struct {
 } pixel;
 
 typedef struct {
-    pixel** matrix;
-    unsigned int width;
+    pixel*** matrix;
     unsigned int height;
+    unsigned int width;
 } information;
 
 information* bmp_to_matrix(const char* filename);
