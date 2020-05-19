@@ -1,4 +1,4 @@
-name: C CI
+name: Ask Turing
 
 on:
   push:
@@ -13,8 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: configure
-      run: ./configure
+    - name: make clean
+      run: make clean
     - name: make
       run: make
     - name: make test
