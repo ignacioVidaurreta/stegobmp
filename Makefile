@@ -23,8 +23,11 @@ debug:
 	@echo "$(GREEN)Done!$(NORMAL)"
 
 
-test: all
-	@echo "WIP"
+test:
+	@echo "$(GREEN)Running Tests...$(NORMAL)"
+	$(MAKE) -C tests/
+	@echo "$(GREEN)Done$(NORMAL)"
+
 
 clean:
 	@echo "$(GREEN)Cleaning up ...$(NORMAL)"
