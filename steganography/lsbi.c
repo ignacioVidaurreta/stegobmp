@@ -2,33 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "include/bmp.h"
-
+#include "../include/bmp.h"
+#include "../include/print.h"
 
 #define RGB_COLOR_SIZE 8
 #define BYTE 8
 
-
-void print_pixel(pixel* pixel) {
-        printf(" %d %d %d |", pixel->blue, pixel->green, pixel->red);
-}
-
-void print_image_matrix(pixel*** image, int width, int height) {
-    for(int y = 0 ; y < height ; y++) {
-        for(int x = 0 ; x < width ; x++ ) {
-            pixel* pixel = image[y][x];
-            print_pixel(pixel);
-        }
-        printf("\n");
-    }
-}
-
-void print_array(unsigned char* arr, int size) {
-    for (int i = 0 ; i < size ; i++)
-        printf("%c", arr[i]);
-}
-
-int embed_message(int i, pixel* pixel, int data_size, unsigned char* data ){
+static int embed_message(int i, pixel* pixel, int data_size, unsigned char* data ){
     if(i < data_size){
         pixel->blue = (pixel->blue & ~1) | (data[i++]-'0');
         if(i < data_size) {
@@ -42,7 +22,7 @@ int embed_message(int i, pixel* pixel, int data_size, unsigned char* data ){
     return i;
 }
 
-void embed(unsigned char* data, int data_size, pixel*** image, int width, int height) {
+static void embed(unsigned char* data, int data_size, pixel*** image, int width, int height) {
     int i = 0; // Data index
     int hop = 2;
     int y = height-1;
@@ -58,7 +38,7 @@ void embed(unsigned char* data, int data_size, pixel*** image, int width, int he
 }
 
 
-pixel*** create_image(int width, int height){
+static pixel*** create_image(int width, int height){
     //memory allocation for rows
     pixel*** image = malloc(sizeof(*image)*height);
 
@@ -142,7 +122,8 @@ void initialize_image(pixel*** image){
     image[3][3]->red = 241;
 
 }
-int run_lsbi(){
+
+void run_lsbi(){
     //---------------image---------------
 
     int width = 4;

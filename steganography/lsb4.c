@@ -4,9 +4,11 @@
 #include "../include/bmp.h"
 #include "../include/lsb1.h"
 #include "../include/print.h"
+#include "../include/base.h"
 
 #define RGB_COLOR_SIZE 8
 #define BYTE 8
+#define HALF_BYTE 4
 
 #define DATA_SIZE 2 // This is a magic number according to data so i don't forget to change it in two places :)
                     // This will change once we have a structure where we recieve data, its size and extention
@@ -19,15 +21,25 @@ static void embed(const unsigned char* data, int data_size, pixel*** image, int 
         for(int x = 0 ; x < width ; x++ ) {
             pixel* pixel = image[y][x];
             if(i < data_size){
-                pixel->blue = (pixel->blue & ~1) | (data[i++]-'0');
+                pixel->blue = (pixel->blue & ~15) | bin_to_dec(data+i,HALF_BYTE);
+                i += HALF_BYTE;
                 if(i < data_size) {
-                    pixel->green = (pixel->green & ~1) | (data[i++]-'0');
+                    pixel->green = (pixel->green & ~15) | bin_to_dec(data+i,HALF_BYTE);
+                    i += HALF_BYTE;
                     if(i < data_size) {
-                        pixel->red = (pixel->red & ~1) | (data[i++]-'0');
+                        pixel->red = (pixel->red & ~15) | bin_to_dec(data+i,HALF_BYTE);
+                        i += HALF_BYTE;
                     }
                 }
             }
         }
+    }
+}
+
+static void extract_from_component(unsigned char num, unsigned char * data, int data_index) {
+    int index = data_index;
+    for(int i = HALF_BYTE ; i > 0 ; i--) {
+        data[index++] = ((num & (1 << (i-1))) != 0) + '0';
     }
 }
 
@@ -41,11 +53,14 @@ static unsigned char* extract(pixel*** image, int width, int height) {
         for(int x = 0 ; x < width ; x++ ) {
             pixel* pixel = image[y][x];
             if(i < data_size){
-                data[i++] = (pixel->blue & 1) + '0';
+                extract_from_component(pixel->blue, data, i);
+                i += HALF_BYTE;
                 if(i < data_size) {
-                    data[i++] = (pixel->green & 1)  + '0';
+                    extract_from_component(pixel->green, data, i);
+                    i += HALF_BYTE;
                     if(i < data_size) {
-                        data[i++] = (pixel->red & 1)  + '0';
+                        extract_from_component(pixel->red, data, i);
+                        i += HALF_BYTE;
                     }
                 }
             }
@@ -54,7 +69,7 @@ static unsigned char* extract(pixel*** image, int width, int height) {
     return data;
 }
 
-void run_lsb1(information* info) {
+void run_lsb4(information* info) {
     int width = info->width;
     int height = info->height;
 
@@ -80,5 +95,5 @@ void run_lsb1(information* info) {
     printf("Extracted data: ");
     print_array(extract(image, width, height),data_size);
     printf("\n");
-
 }
+
