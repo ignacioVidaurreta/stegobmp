@@ -7,6 +7,7 @@
 
 #define RGB_COLOR_SIZE 8
 #define BYTE 8
+#define DATA_SIZE 2
 
 static int embed_message(int i, pixel* pixel, int data_size, unsigned char* data ){
     if(i < data_size){
@@ -37,107 +38,51 @@ static void embed(unsigned char* data, int data_size, pixel*** image, int width,
     }
 }
 
-
-static pixel*** create_image(int width, int height){
-    //memory allocation for rows
-    pixel*** image = malloc(sizeof(*image)*height);
-
-    // memory allocation for columns
-    for(int y = height-1 ; y >= 0 ; y--) {
-        image[y] = malloc(sizeof(**image)*width);
+static int extract_data(int i, pixel* pixel, int data_size, char* data){
+    if(i < data_size){
+        data[i++] = (pixel->blue & 1) + '0';
+        if(i < data_size) {
+            data[i++] = (pixel->green & 1)  + '0';
+            if(i < data_size) {
+                data[i++] = (pixel->red & 1)  + '0';
+            }
+        }
     }
 
-    // memory allocation for pixels
-    for(int y = height-1 ; y >= 0 ; y--) {
-        for(int x = 0 ; x < width ; x++ )
-            image[y][x] = malloc(sizeof(pixel));
+    return i;
+}
+static unsigned char* extract(pixel*** image, int width, int height) {
+    int data_size = DATA_SIZE *BYTE;//TODO: get data from first 4 bytes
+
+    int i = 0;
+    int hop = 4;
+    unsigned char* data = malloc(sizeof(*data)*data_size);
+    int y = height-1;
+    int x = 0;
+    for(; y >= 0 ; y--) {
+        for(; x < width ;) {
+            pixel* pixel = image[y][x];
+            i = extract_data(i, pixel, data_size, data);
+            x+=hop;
+        }
+        x = x % width;
     }
-
-    return image;
+    return data;
 }
 
-void initialize_image(pixel*** image){
-    image[0][0]->blue = 100;
-    image[0][0]->green = 144;
-    image[0][0]->red = 241;
 
-    image[0][1]->blue = 100;
-    image[0][1]->green = 144;
-    image[0][1]->red = 241;
-
-    image[0][2]->blue = 100;
-    image[0][2]->green = 144;
-    image[0][2]->red = 241;
-
-    image[0][3]->blue = 100;
-    image[0][3]->green = 144;
-    image[0][3]->red = 241;
-
-    image[1][0]->blue = 100;
-    image[1][0]->green = 144;
-    image[1][0]->red = 241;
-
-    image[1][1]->blue = 100;
-    image[1][1]->green = 144;
-    image[1][1]->red = 241;
-
-    image[1][2]->blue = 100;
-    image[1][2]->green = 144;
-    image[1][2]->red = 241;
-
-    image[1][3]->blue = 100;
-    image[1][3]->green = 144;
-    image[1][3]->red = 241;
-
-    image[2][0]->blue = 100;
-    image[2][0]->green = 144;
-    image[2][0]->red = 241;
-
-    image[2][1]->blue = 100;
-    image[2][1]->green = 144;
-    image[2][1]->red = 241;
-
-    image[2][2]->blue = 100;
-    image[2][2]->green = 144;
-    image[2][2]->red = 241;
-
-    image[2][3]->blue = 100;
-    image[2][3]->green = 144;
-    image[2][3]->red = 241;
-
-    image[3][0]->blue = 100;
-    image[3][0]->green = 144;
-    image[3][0]->red = 241;
-
-    image[3][1]->blue = 100;
-    image[3][1]->green = 144;
-    image[3][1]->red = 241;
-
-    image[3][2]->blue = 100;
-    image[3][2]->green = 144;
-    image[3][2]->red = 241;
-
-    image[3][3]->blue = 100;
-    image[3][3]->green = 144;
-    image[3][3]->red = 241;
-
-}
-
-void run_lsbi(){
+void run_lsbi(information* info){
     //---------------image---------------
 
-    int width = 4;
-    int height = 4;
+    int width = info->width;
+    int height = info->height;
 
-    pixel*** image = create_image(width, height);
-
-
-    initialize_image(image);
+    pixel*** image = info->matrix;
 
     //---------------data---------------
 
-    unsigned char * data = "01101101";
-    int data_size = 1 * BYTE;
+    const unsigned char * data = "0110110101101101";
+    int data_size = DATA_SIZE * BYTE;
 
     //---------------steganography---------------
     
@@ -151,9 +96,9 @@ void run_lsbi(){
     print_image_matrix(image, width, height);
     printf("\n");
 
-    // printf("Extracted data: ");
-    // print_array(extract(image, width, height),data_size);
-    // printf("\n");
+    printf("Extracted data: ");
+    print_array(extract(image, width, height),data_size);
+    printf("\n");
 
 
     // free pixels
