@@ -4,12 +4,20 @@
 
 #include "../include/bmp.h"
 #include "../include/print.h"
+#include "../include/lsbi.h"
 
 #define RGB_COLOR_SIZE 8
 #define BYTE 8
 #define DATA_SIZE 2
 
-static int embed_message(int i, pixel* pixel, int data_size, unsigned char* data ){
+// Why here? https://stackoverflow.com/questions/15681442/function-declared-static-but-never-defined
+static int embed_message(int i, pixel* pixel, int data_size, const unsigned char* data);
+static void embed(const unsigned char* data, int data_size, pixel*** image, int width, int height);
+static int extract_data(int i, pixel* pixel, int data_size, unsigned char* data);
+static unsigned char* extract(pixel*** image, int width, int height);
+
+
+static int embed_message(int i, pixel* pixel, int data_size, const unsigned char* data ){
     if(i < data_size){
         pixel->blue = (pixel->blue & ~1) | (data[i++]-'0');
         if(i < data_size) {
@@ -23,7 +31,7 @@ static int embed_message(int i, pixel* pixel, int data_size, unsigned char* data
     return i;
 }
 
-static void embed(unsigned char* data, int data_size, pixel*** image, int width, int height) {
+static void embed(const unsigned char* data, int data_size, pixel*** image, int width, int height) {
     int i = 0; // Data index
     int hop = 2;
     int y = height-1;
@@ -38,7 +46,7 @@ static void embed(unsigned char* data, int data_size, pixel*** image, int width,
     }
 }
 
-static int extract_data(int i, pixel* pixel, int data_size, char* data){
+static int extract_data(int i, pixel* pixel, int data_size, unsigned char* data){
     if(i < data_size){
         data[i++] = (pixel->blue & 1) + '0';
         if(i < data_size) {
