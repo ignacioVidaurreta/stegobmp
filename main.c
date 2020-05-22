@@ -14,18 +14,20 @@
 
 // https://stackoverflow.com/questions/37538/how-do-i-determine-the-size-of-my-array-in-c
 int main(int argc, char * argv[]){
-    //struct config* program_config;
 
-    //program_config = parse_arguments(argc, argv);
     
-    //free_config(program_config);
     char * mode = "TXT";
 
     if(strcmp(mode, "TXT") == 0){
         // If this file isn't in your filesystem please create it
         char* filename = "dummy.txt";
+        struct config* program_config = parse_arguments(argc, argv);
+        
         char* img = get_byte_repr(filename);
+        char* ext = get_extension(filename, program_config);
         free(img);
+        log_info("Programa terminado \n\n", program_config);
+        free_config(program_config);
         return 0;
     }
 
@@ -42,6 +44,5 @@ int main(int argc, char * argv[]){
     }
 
 
-    // log_info("Programa terminado \n\n", program_config);
-    //free_config(program_config);
+  
 }

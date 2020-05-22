@@ -5,8 +5,10 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <assert.h>
 
 #include "../include/base.h"
+#include "../include/logging.h"
 
 int bin_to_dec(const unsigned char* str, int n_bits) {
     int num = 0;
@@ -29,11 +31,11 @@ char* read_file_type(char* file){
     return filetype;
 }
 
-void get_stat(char* filename){
+char* apply_file_cmd(char* filename){
    
-    char *argv[3];// = {"dummy.txt", NULL};
-    argv[0] = "logging.c";
-    argv[1] = "logging.c"; // idk why it needs to be here twice tbh
+    char *argv[3];
+    argv[0] = filename;
+    argv[1] = filename; // idk why it needs to be here twice tbh
     argv[2] = NULL;
     int pid = fork();
 
@@ -44,8 +46,7 @@ void get_stat(char* filename){
     }else{
         int ret;
         waitpid(pid, &ret, 0); // Wait for child to finish
-        printf("%s\n", read_file_type("filetype.txt"));
-
+        return read_file_type("filetype.txt");
     }
 }
 
@@ -54,7 +55,7 @@ char* get_byte_repr(char* filename){
     FILE *fileptr;
     char *buffer;
     long filelen;
-    get_stat(filename);
+
     fileptr = fopen(filename, "rb");                     // Open the file in binary mode
     fseek(fileptr, 0, SEEK_END);                            // Jump to the end of the file
     filelen = ftell(fileptr);                               // Get the current byte offset in the file
@@ -66,7 +67,46 @@ char* get_byte_repr(char* filename){
 
     buffer[filelen * sizeof(char) +1] = "\0";               // Insert the \n because we are not animals  
 
-   // printf("%ld  %d\n", filelen, strlen(buffer));
-
+    // int len = strlen(buffer); TODO INVESTIGATE WHY THIS ASSERT FAILS
+    // printf("%ld, %d\n", filelen, len);
+    // assert(filelen-1 == len);
     return buffer;
+}
+
+char* translate_raw_to_ext(char* raw_type, struct config* config){
+    char* ret;
+    bool err = false;
+    if(strcmp(raw_type, TXT) == 0){
+        ret = ".txt";
+    }else if(strcmp(raw_type, C)==0){
+        ret = ".c";
+    }else{
+        raw_type = strtok(raw_type, " "); // Get the first word
+        if(strcmp(raw_type, PDF) == 0){
+            ret = ".pdf";
+        }else if(strcmp(raw_type, JPEG) == 0){
+            ret = ".jpeg";
+        }else if(strcmp(raw_type, PNG) == 0){
+            ret = ".png";
+        }else{
+            err = true;
+            ret = "ERR";
+        }
+    }
+
+    log_extension(ret, err, config);
+    return ret;
+
+}
+
+char* get_extension(char* filename, struct config* config){
+    char* raw_type = apply_file_cmd(filename);
+    
+    char* ext = malloc(10*sizeof(char));
+
+    ext = translate_raw_to_ext(raw_type, config);
+
+    free(raw_type);
+    return ext;
+
 }

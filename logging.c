@@ -103,3 +103,17 @@ void log_parameter(parameter param, struct config* config){
     free(message);
 
 }
+
+void log_extension(char* ext, bool error, struct config* config){
+    char* message = malloc(100*sizeof(char));
+
+    if(error){
+        sprintf(message, "Error: %s file type is unsupported", ext);
+        log_error(message, config);
+    }else{
+        sprintf(message, "Using extension: %s", ext);
+        log_info(message, config);
+    }
+
+    free(message);
+}
