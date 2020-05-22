@@ -32,8 +32,14 @@ test:
 clean:
 	@echo "$(GREEN)Cleaning up ...$(NORMAL)"
 	rm -rf $(EXEC_NAME) $(DEBUG_NAME)
-	rm -rf log
 	@echo "$(GREEN)Done!$(NORMAL)"
+
+clean-logs:
+	@echo "$(GREEN)Cleaning logs ...$(NORMAL)"
+	rm -rf log.old
+	mv log log.old
+	@echo "$(GREEN)Done!$(NORMAL)"
+
 
 ## TODO: Missing rules: run and gdb. We need to figure out the whole 
 ## arguments first
