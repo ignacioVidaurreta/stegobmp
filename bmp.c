@@ -5,27 +5,6 @@
 
 #define HEADER_SIZE 54
 
-// unsigned short --> size 2
-// unsigned int   --> size 4
-typedef struct __attribute__((__packed__)) {
-    unsigned short type;
-    unsigned int bmp_size;
-    unsigned short reserved_1;
-    unsigned short reserved_2;
-    unsigned int bmp_data_offset;
-    unsigned int bmp_header_size;
-    unsigned int bmp_width;
-    unsigned int bmp_height;
-    unsigned short plane_number;
-    unsigned short point_size;
-    unsigned int compression;
-    unsigned int image_size;
-    unsigned int horizontal_resolution;
-    unsigned int vertical_resolution;
-    unsigned int colour_table_size;
-    unsigned int important_colour_counter;
-}bmp_header;
-
 
 void print_header_info(bmp_header* header) {
     printf("Size of struct %ld\n\n", sizeof(*header));
@@ -99,10 +78,33 @@ information* bmp_to_matrix(const char* filename) {
     }
     information* info = malloc(sizeof(*info));
     info->matrix = matrix;
+    info->header = header;
     info->height = height;
     info->width = width;
 
-    free_header(header);
-
     return info;
+}
+
+/* file_name: must contain .bmp extension */
+int matrix_to_bmp(information* info, char* file_name) {
+    FILE* bmp_file = fopen(file_name, "w");
+    if(bmp_file == NULL) {
+        return 1; // error
+    }
+    unsigned int result = fwrite(info->header, HEADER_SIZE, 1, bmp_file);
+    if(result != 1) { // result != elements to write with fwrite
+        return 1; // error
+    }
+    unsigned int height = info->header->bmp_height;
+    unsigned int width  = info->header->bmp_width;
+    for(int i=0; i<height; i++) {
+        for(int j=0; j<width; j++) {
+            result = fwrite(info->matrix[i][j],sizeof(pixel),1,bmp_file);
+            if(result != 1) { // result != elements to write with fwrite
+                return 1; // error
+            }
+        }
+    }
+    fclose(bmp_file);
+    return 0; // success
 }
