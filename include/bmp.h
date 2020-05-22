@@ -35,7 +35,8 @@ typedef struct {
 
 information* bmp_to_matrix(const char* filename);
 
-/* file_name: must contain .bmp extension */
+/* file_name: must contain .bmp extension on the name.
+    Creates an output file on root folder containing the image */
 int matrix_to_bmp(information* info, char* file_name);
 
 void free_information(information* info);
