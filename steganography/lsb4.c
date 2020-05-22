@@ -70,8 +70,8 @@ static unsigned char* extract(pixel*** image, int width, int height) {
 }
 
 void run_lsb4(information* info) {
-    int width = info->width;
-    int height = info->height;
+    int width = info->header->bmp_width;
+    int height = info->header->bmp_height;
 
     pixel*** image = info->matrix;
     

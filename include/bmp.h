@@ -31,8 +31,6 @@ typedef struct __attribute__((__packed__)) {
 typedef struct {
     pixel***     matrix;
     bmp_header*  header;
-    unsigned int height;
-    unsigned int width;
 } information;
 
 information* bmp_to_matrix(const char* filename);
@@ -40,7 +38,7 @@ information* bmp_to_matrix(const char* filename);
 /* file_name: must contain .bmp extension */
 int matrix_to_bmp(information* info, char* file_name);
 
-
+void free_information(information* info);
 
 
 #endif /* BMP_H */

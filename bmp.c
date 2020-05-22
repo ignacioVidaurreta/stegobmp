@@ -49,8 +49,12 @@ void free_pixel_matrix(pixel*** matrix, unsigned int height, unsigned int width)
     free(matrix);
 }
 
-// TODO: chequear si validamos aca o en main que el archivo sea null
-// o si lo hacemos en ambos lados
+void free_information(information* info) {
+    free_pixel_matrix(info->matrix, info->header->bmp_height, info->header->bmp_width);
+    free_header(info->header);
+    free(info);
+}
+
 information* bmp_to_matrix(const char* filename) {
     FILE* file;
     file = fopen(filename, "r");
@@ -79,9 +83,6 @@ information* bmp_to_matrix(const char* filename) {
     information* info = malloc(sizeof(*info));
     info->matrix = matrix;
     info->header = header;
-    info->height = height;
-    info->width = width;
-
     return info;
 }
 
