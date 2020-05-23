@@ -19,8 +19,8 @@ typedef struct {
 int bin_to_dec(const unsigned char* str, int n_bits);
 char* get_byte_repr();
 char* apply_file_cmd(char* filename);
-char* translate_raw_to_ext(char* raw_type, struct config* config);
-char* get_extension(char* filename, struct config* config);
+char* translate_raw_to_ext(char* raw_type);
+char* get_extension(char* filename);
 
 // TODO: fix this method signature
 file_data* get_file_information(char* filename);

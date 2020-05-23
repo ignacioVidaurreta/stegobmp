@@ -27,6 +27,7 @@ char* read_file_type(char* file){
     char* filetype = malloc(100*sizeof(char));
     // https://stackoverflow.com/questions/20108334/traverse-file-line-by-line-using-fscanf/20108623
     fscanf(fd, "%s %30[^\n]\n", buffer, filetype);
+    fclose(fd);
 
     return filetype;
 }
@@ -67,30 +68,28 @@ int store_byte_repr_and_size(file_data* data){
     rewind(fileptr);                                        // Jump back to the beginning of the file
 
     data->filelen = filelen;                                // Stores file len on data structure  
-
-    buffer = (char *)malloc(filelen * sizeof(char) +1);     // Enough memory for the file
+    
+    buffer = (char *)malloc(filelen * sizeof(char));        // Enough memory for the file
     fread(buffer, filelen, 1, fileptr);                     // Read in the entire file
     fclose(fileptr);                                        // Close the file
-
-    buffer[filelen * sizeof(char) +1] = '\0';               // Insert the \n because we are not animals
 
     data->file_content = buffer;                            // Stores file content on data structure  
 
     int len = strlen(buffer);
-    printf("Last: %d, pre-last:%d\n", buffer[filelen], buffer[filelen-1]);
     printf("%ld, %d\n", filelen, len);
-    assert(filelen == len);
+    // assert(filelen == len);
 
     return 0;
 }
 
-char* translate_raw_to_ext(char* raw_type, struct config* config){
+char* translate_raw_to_ext(char* raw_type){
     char* ret;
     bool err = false;
     if(strcmp(raw_type, TXT) == 0){
         ret = ".txt";
     }else if(strcmp(raw_type, C)==0){
         ret = ".c";
+    
     }else{
         raw_type = strtok(raw_type, " "); // Get the first word
         if(strcmp(raw_type, PDF) == 0){
@@ -105,17 +104,19 @@ char* translate_raw_to_ext(char* raw_type, struct config* config){
         }
     }
 
-    log_extension(ret, err, config);
+    // log_extension(ret, err, config);
     return ret;
 
 }
 
-char* get_extension(char* filename, struct config* config){
+// TODO: config as argument
+char* get_extension(char* filename){
     char* raw_type = apply_file_cmd(filename);
-    
+
+    // TODO: memory leak
     char* ext = malloc(10*sizeof(char));
 
-    ext = translate_raw_to_ext(raw_type, config);
+    ext = translate_raw_to_ext(raw_type);
 
     free(raw_type);
     return ext;
@@ -125,12 +126,11 @@ char* get_extension(char* filename, struct config* config){
 // TODO: figure out WHY the len of the file wether I pass or not arguemtns
 // specially since when I use arguments, wierd characters appear when reading the file
 
-// missing config as an argument
 file_data* get_file_information(char* filename) {
     file_data* data = malloc(sizeof(*data));
     data->filename = filename;
     store_byte_repr_and_size(data);
-    data->extension = ".txt"; // here I should be calling get_extension
+    data->extension = get_extension(filename);
     return data;
 }
 

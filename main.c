@@ -15,24 +15,31 @@
 // https://stackoverflow.com/questions/37538/how-do-i-determine-the-size-of-my-array-in-c
 int main(int argc, char * argv[]){
 
-    file_data* data = get_file_information("dummy.txt");
     
-    // char * mode = "TXT";
+    char * mode = "TXT";
     
-    // if(strcmp(mode, "TXT") == 0){
-    //     // If this file isn't in your filesystem please create it
-    //     char* filename = "dummy.txt";
-    //     struct config* program_config = parse_arguments(argc, argv);
+    if(strcmp(mode, "TXT") == 0){
+        // If this file isn't in your filesystem please create it
+        char* filename = "dummy.txt";
+
+        // TODO: desconectamos get_file_information de program_config y dejamos
+        // el llamado a funcion de parse_arguments y asi y todo nos daban mal 
+        // las longitudes del archivo en store_byte_repr_and_size
+        // lo raro es que seguia pasando cuando unicamente estabamos inicializando 
+        // la config (ya no la estabamos usando entre los metodos que involucran buscar la file information).
         
-    //     char* img = get_byte_repr(filename);
-    //     char* ext = get_extension(filename, program_config);
-    //     free(img);
+        // when running this, filelen=454, len=458 (len of file_content, the one we write)
+        // struct config* program_config = parse_arguments(argc, argv);
+        // char* ext = get_extension(filename, program_config);
         
-    //     log_info("Programa terminado \n\n", program_config);
-    //     free_config(program_config);
-    //     free(data);
-    //     return 0;
-    // }
+        file_data* data = get_file_information("dummy.txt");
+        
+        // log_info("Programa terminado \n\n", program_config);
+        // free_config(program_config);
+        
+        free(data);
+        return 0;
+    }
 
     // information* info = bmp_to_matrix(argv[1]);
 
