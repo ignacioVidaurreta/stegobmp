@@ -180,9 +180,9 @@ unsigned char* uchar_to_bits(unsigned char c) {
         }
     }
     
-    for(int i=0; i<8; i++) {
-        printf("%c",bits[i]);
-    }
+    // for(int i=0; i<8; i++) {
+    //     printf("%c",bits[i]);
+    // }
     return bits;
 }
 
@@ -200,22 +200,17 @@ unsigned char* concatenate(file_data* data) {
     
 
     // print stream
-    long len = DWORD_SIZE + data->filelen + strlen(data->extension) + 1;
-    for(int i=0; i<len; i++) {
-        if(i == 4) {
-            printf("\n");
-        }
-        if(i == 4+data->filelen) {
-            printf("\n");
-        }
-        printf("%c-", stream[i]);
-    }
-    printf("\n");
-    
-    for(int i=0; i<10; i++) {
-        uchar_to_bits(stream[i]);
-        printf("\n");
-    }
+    // long len = DWORD_SIZE + data->filelen + strlen(data->extension) + 1;
+    // for(int i=0; i<len; i++) {
+    //     if(i == 4) {
+    //         printf("\n");
+    //     }
+    //     if(i == 4+data->filelen) {
+    //         printf("\n");
+    //     }
+    //     printf("%c-", stream[i]);
+    // }
+    // printf("\n");
 
     return stream;
 }
