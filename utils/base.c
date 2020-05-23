@@ -10,6 +10,7 @@
 #include "../include/base.h"
 #include "../include/logging.h"
 
+#define MAX_EXTENSION_LEN 10
 #define DWORD_SIZE 4
 #define CERO '0'
 #define ONE '1'
@@ -22,6 +23,30 @@ int bin_to_dec(const unsigned char* str, int n_bits) {
     }
     return num;
 }
+
+unsigned char byte_to_uchar(const unsigned char* bits) {
+    int num = bin_to_dec(bits, 8);
+    return (unsigned char)num;
+}
+
+void uchar_to_byte(unsigned char* bits, unsigned char c) {
+    int decimal_representation = (int)c;
+    
+    for(int i=7;i>=0;i--) {
+        if(decimal_representation>0) {
+            bits[i] = decimal_representation%2 == 0 ? CERO : ONE;    
+            decimal_representation = decimal_representation/2;    
+        }
+        else {
+            bits[i] = CERO;
+        }
+    }
+    
+    // for(int i=0; i<8; i++) {
+    //     printf("%c",bits[i]);
+    // }
+}
+
 
 // TODO: Stop wasting so much memmory
 char* read_file_type(char* file){
@@ -122,13 +147,12 @@ char* get_extension(char* filename){
     char* raw_type = apply_file_cmd(filename);
 
     // TODO: memory leak
-    char* ext = malloc(10*sizeof(char));
+    char* ext = malloc(MAX_EXTENSION_LEN*sizeof(char));
 
     ext = translate_raw_to_ext(raw_type);
 
     free(raw_type);
     return ext;
-
 }
 
 // TODO: eventually include program config for logs
@@ -165,27 +189,6 @@ void appeend_extension_to_stream(unsigned char* stream, file_data* data) {
     stream[DWORD_SIZE + filelen + ext_len] = '\0';
 }
 
-unsigned char* uchar_to_bits(unsigned char c) {
-    unsigned char* bits = malloc(8*sizeof(unsigned char)); // 1 byte = 8 bits
-    
-    int decimal_representation = (int)c;
-    
-    for(int i=7;i>=0;i--) {
-        if(decimal_representation>0) {
-            bits[i] = decimal_representation%2 == 0 ? CERO : ONE;    
-            decimal_representation = decimal_representation/2;    
-        }
-        else {
-            bits[i] = CERO;
-        }
-    }
-    
-    // for(int i=0; i<8; i++) {
-    //     printf("%c",bits[i]);
-    // }
-    return bits;
-}
-
 unsigned char* concatenate(file_data* data) {
 
     // 4 because of dword len of file
@@ -198,7 +201,6 @@ unsigned char* concatenate(file_data* data) {
     append_file_content_to_stream(stream, data);
     appeend_extension_to_stream(stream, data);
     
-
     // print stream
     // long len = DWORD_SIZE + data->filelen + strlen(data->extension) + 1;
     // for(int i=0; i<len; i++) {
@@ -215,6 +217,67 @@ unsigned char* concatenate(file_data* data) {
     return stream;
 }
 
+int get_filelen_from_stream(unsigned char* stream) {
+    int filelen = (int)stream[3] | ( (int)stream[2] << 8 ) | ( (int)stream[1] << 16 ) | ( (int)stream[0] << 24 );;
+    printf("Filelen obtained: %d", filelen);
+    return filelen;
+}
+
+char* get_file_content_from_stream(int filelen, unsigned char* stream) {
+    char* content = malloc(sizeof(unsigned char)*filelen);
+    for(int i=0; i<filelen; i++) {
+        content[i] = (char)stream[DWORD_SIZE + i];
+    }
+    return content;
+}
+
+char* get_extension_from_stream(int filelen, unsigned char* stream) {
+    char* extension = malloc(MAX_EXTENSION_LEN*sizeof(char));
+    int i = 0;
+    while(stream[filelen + i]!='\0') {
+        extension[i] = (char)stream[DWORD_SIZE + filelen + i];
+        i++;
+    }
+    extension[DWORD_SIZE + filelen + i] = '\0';
+    return extension;
+}
+
+/* stream:   extracted when running a lsb algorithm
+   filename: for creating the file
+*/
 file_data* split(unsigned char* stream) {
-    return NULL;
+    file_data* data    = malloc(sizeof(*data));
+    
+    data->filelen      = get_filelen_from_stream(stream);
+    data->file_content = get_file_content_from_stream(data->filelen, stream);
+    data->extension    = get_extension_from_stream(data->filelen, stream);
+
+    return data;
+}
+
+// output_file_name MUST NOT include extension
+int generate_output_file(file_data* data, char* output_file_name) {
+
+    int file_name_len = strlen(output_file_name);
+    int len = file_name_len + MAX_EXTENSION_LEN;
+    char* file = malloc(sizeof(char)*len);
+    int i = 0;
+    for(; i<file_name_len; i++) {
+        file[i] = output_file_name[i];
+    }
+    int j = 0;
+    while(data->extension[j] != '\0') {
+        file[i++] = data->extension[j++]; 
+    }
+    file[i] = '\0';
+
+    printf("File name:%s\n",file);
+
+    FILE* output = fopen(file, "w");
+    if(output == NULL) {
+        return 1; // error
+    }
+    fwrite(data->file_content,data->filelen, 1,output);
+    fclose(output);
+    return 0; // success
 }

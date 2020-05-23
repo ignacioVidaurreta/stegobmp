@@ -32,13 +32,17 @@ int main(int argc, char * argv[]){
         // struct config* program_config = parse_arguments(argc, argv);
         // char* ext = get_extension(filename, program_config);
         
-        file_data* data       = get_file_information("dummy.txt");
-        unsigned char* stream = concatenate(data);
-        
+        file_data*     data       = get_file_information(filename);
+        unsigned char* stream     = concatenate(data);
+        file_data*     split_data = split(stream);
+        int result                = generate_output_file(split_data, "output_test");
+        printf("Result of output file: %d\n", result);
+
         // log_info("Programa terminado \n\n", program_config);
         // free_config(program_config);
         
         free(data);
+        free(split_data);
         return 0;
     }
 
