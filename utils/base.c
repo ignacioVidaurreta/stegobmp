@@ -76,8 +76,8 @@ int store_byte_repr_and_size(file_data* data){
     data->file_content = buffer;                            // Stores file content on data structure  
 
     int len = strlen(buffer);
-    printf("%ld, %d\n", filelen, len);
-    // assert(filelen == len);
+    // printf("%ld, %d\n", filelen, len);
+    assert(filelen == len);
 
     return 0;
 }
