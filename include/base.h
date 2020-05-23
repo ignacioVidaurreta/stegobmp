@@ -10,9 +10,10 @@
 #include "parser.h"
 
 typedef struct {
-    unsigned char* file_content;
+    char*          filename;
     char*          extension;
-    int            file_size;
+    char*          file_content;
+    int            filelen;
 } file_data;
 
 int bin_to_dec(const unsigned char* str, int n_bits);
@@ -20,6 +21,9 @@ char* get_byte_repr();
 char* apply_file_cmd(char* filename);
 char* translate_raw_to_ext(char* raw_type, struct config* config);
 char* get_extension(char* filename, struct config* config);
+
+// TODO: fix this method signature
+file_data* get_file_information(char* filename);
 
 /* Returns a stream with file content, extension and size concatenated
 */
