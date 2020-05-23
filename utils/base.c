@@ -110,3 +110,11 @@ char* get_extension(char* filename, struct config* config){
     return ext;
 
 }
+
+unsigned char* concatenate(file_data* data) {
+    return NULL;
+}
+
+file_data* split(unsigned char* stream) {
+    return NULL;
+}
