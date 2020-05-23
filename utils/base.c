@@ -10,6 +10,11 @@
 #include "../include/base.h"
 #include "../include/logging.h"
 
+#define DWORD_SIZE 4
+#define CERO '0'
+#define ONE '1'
+
+
 int bin_to_dec(const unsigned char* str, int n_bits) {
     int num = 0;
     for(int i = 0 ; i < n_bits ; i++) {
@@ -77,6 +82,9 @@ int store_byte_repr_and_size(file_data* data){
 
     int len = strlen(buffer);
     // printf("%ld, %d\n", filelen, len);
+    // for(int i=0; i<len; i++) {
+    //     printf("%d\n", buffer[i]);
+    // }
     assert(filelen == len);
 
     return 0;
@@ -109,7 +117,7 @@ char* translate_raw_to_ext(char* raw_type){
 
 }
 
-// TODO: config as argument
+// TODO: eventually include program config for logs
 char* get_extension(char* filename){
     char* raw_type = apply_file_cmd(filename);
 
@@ -123,9 +131,7 @@ char* get_extension(char* filename){
 
 }
 
-// TODO: figure out WHY the len of the file wether I pass or not arguemtns
-// specially since when I use arguments, wierd characters appear when reading the file
-
+// TODO: eventually include program config for logs
 file_data* get_file_information(char* filename) {
     file_data* data = malloc(sizeof(*data));
     data->filename = filename;
@@ -134,8 +140,84 @@ file_data* get_file_information(char* filename) {
     return data;
 }
 
+void append_filelen_to_stream(unsigned char* stream, int filelen) {
+    stream[0] = (filelen >> 24) & 0xFF;
+    stream[1] = (filelen >> 16) & 0xFF;
+    stream[2] = (filelen >> 8) & 0xFF;
+    stream[3] = filelen & 0xFF;
+    // printf("Filelen: %d -- Hexa: %x, %x, %x, %x\n",filelen, stream[0],stream[1],stream[2],stream[3]);
+}
+
+void append_file_content_to_stream(unsigned char* stream, file_data* data) {
+    int filelen = data->filelen;
+    char* content = data->file_content;
+    for(int i=0; i<filelen; i++) {
+        stream[DWORD_SIZE + i] = (unsigned char)content[i];
+    }
+}
+
+void appeend_extension_to_stream(unsigned char* stream, file_data* data) {
+    int ext_len = strlen(data->extension);
+    int filelen = data->filelen;
+    for(int i=0; i<ext_len; i++) {
+        stream[DWORD_SIZE + filelen + i] = (unsigned char)(data->extension[i]);
+    }
+    stream[DWORD_SIZE + filelen + ext_len] = '\0';
+}
+
+unsigned char* uchar_to_bits(unsigned char c) {
+    unsigned char* bits = malloc(8*sizeof(unsigned char)); // 1 byte = 8 bits
+    
+    int decimal_representation = (int)c;
+    
+    for(int i=7;i>=0;i--) {
+        if(decimal_representation>0) {
+            bits[i] = decimal_representation%2 == 0 ? CERO : ONE;    
+            decimal_representation = decimal_representation/2;    
+        }
+        else {
+            bits[i] = CERO;
+        }
+    }
+    
+    for(int i=0; i<8; i++) {
+        printf("%c",bits[i]);
+    }
+    return bits;
+}
+
 unsigned char* concatenate(file_data* data) {
-    return NULL;
+
+    // 4 because of dword len of file
+    // filelen for file content + 1
+    // strlen(extension) + 1 because it's ".ext\0"
+    unsigned char* stream = malloc(DWORD_SIZE + data->filelen + strlen(data->extension) + 1);
+
+    // filelen | file content | extension
+    append_filelen_to_stream(stream, data->filelen);
+    append_file_content_to_stream(stream, data);
+    appeend_extension_to_stream(stream, data);
+    
+
+    // print stream
+    long len = DWORD_SIZE + data->filelen + strlen(data->extension) + 1;
+    for(int i=0; i<len; i++) {
+        if(i == 4) {
+            printf("\n");
+        }
+        if(i == 4+data->filelen) {
+            printf("\n");
+        }
+        printf("%c-", stream[i]);
+    }
+    printf("\n");
+    
+    for(int i=0; i<10; i++) {
+        uchar_to_bits(stream[i]);
+        printf("\n");
+    }
+
+    return stream;
 }
 
 file_data* split(unsigned char* stream) {

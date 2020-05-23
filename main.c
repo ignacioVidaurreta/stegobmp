@@ -32,7 +32,8 @@ int main(int argc, char * argv[]){
         // struct config* program_config = parse_arguments(argc, argv);
         // char* ext = get_extension(filename, program_config);
         
-        file_data* data = get_file_information("dummy.txt");
+        file_data* data       = get_file_information("dummy.txt");
+        unsigned char* stream = concatenate(data);
         
         // log_info("Programa terminado \n\n", program_config);
         // free_config(program_config);
