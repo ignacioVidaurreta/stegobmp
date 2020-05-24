@@ -39,6 +39,30 @@ int main(int argc, char * argv[]){
         int mode = get_mode(argc, argv);
         if (mode == EMBED){
             printf("embed");
+            
+
+            file_data*     data       = get_file_information(filename);
+            unsigned char* stream     = concatenate(data);
+            
+            // stream to bits
+            long stream_size = 4 + data->filelen + strlen(data->extension) + 1;
+            // size of stream in bits
+            long data_size = (4 + data->filelen + strlen(data->extension) + 1)*8;
+            unsigned char* bit_stream = (unsigned char *)malloc(sizeof(unsigned char)*data_size);
+            int j=0;
+            for(int i=0; i < stream_size; i++) {
+                uchar_to_byte(bit_stream+j, stream[i]);
+                j=j+8;
+            }
+
+            information* info = bmp_to_matrix("./images/ladoLSB1.bmp");
+
+            run_lsb1_embed(info, (const unsigned char*) bit_stream,data_size);
+
+            int result = matrix_to_bmp(info, "testfile.bmp");
+
+            printf("\nResult: %d\n", result);
+
             return 1;
         }else if( mode == EXTRACT){
             printf("extract");
@@ -48,29 +72,19 @@ int main(int argc, char * argv[]){
 
         printf("ERROR");
         
-        file_data*     data       = get_file_information(filename);
-        unsigned char* stream     = concatenate(data);
         
-        // stream to bits
-        long stream_size = 4 + data->filelen + strlen(data->extension) + 1;
-        // size of stream in bits
-        long data_size = (4 + data->filelen + strlen(data->extension) + 1)*8;
-        unsigned char* bit_stream = (unsigned char *)malloc(sizeof(unsigned char)*data_size);
-        int j=0;
-        for(int i=0; i < stream_size; i++) {
-            uchar_to_byte(bit_stream+j, stream[i]);
-        }
 
-        // split information after running lsb
-        file_data*     split_data = split(stream);
-        int result                = generate_output_file(split_data, "output_test");
-        printf("Result of output file: %d\n", result);
+
+        // // split information after running lsb
+        // file_data*     split_data = split(stream);
+        // int result                = generate_output_file(split_data, "output_test");
+        // printf("Result of output file: %d\n", result);
 
         // log_info("Programa terminado \n\n", program_config);
         // free_config(program_config);
         
-        free(data);
-        free(split_data);
+        // free(data);
+        // free(split_data);
         return 0;
     }
 }

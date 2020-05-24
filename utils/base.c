@@ -12,8 +12,6 @@
 
 #define MAX_EXTENSION_LEN 10
 #define DWORD_SIZE 4
-#define CERO '0'
-#define ONE '1'
 
 
 int bin_to_dec(const unsigned char* str, int n_bits) {
@@ -24,11 +22,13 @@ int bin_to_dec(const unsigned char* str, int n_bits) {
     return num;
 }
 
+// bits to byte
 unsigned char byte_to_uchar(const unsigned char* bits) {
     int num = bin_to_dec(bits, 8);
     return (unsigned char)num;
 }
 
+// byte to bits
 void uchar_to_byte(unsigned char* bits, unsigned char c) {
     int decimal_representation = (int)c;
     

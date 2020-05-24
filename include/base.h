@@ -7,6 +7,9 @@
 #define PNG "PNG"
 #define C "C source, ASCII text"
 
+#define CERO '0'
+#define ONE '1'
+
 #include "parser.h"
 
 typedef struct {

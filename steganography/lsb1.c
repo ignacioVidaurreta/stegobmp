@@ -4,6 +4,7 @@
 #include "../include/bmp.h"
 #include "../include/lsb1.h"
 #include "../include/print.h"
+#include "../include/base.h"
 
 #define RGB_COLOR_SIZE 8
 #define BYTE 8
@@ -31,6 +32,38 @@ static void embed(const unsigned char* data, int data_size, pixel*** image, int 
     }
 }
 
+// static void embed_byte(unsigned char* byte, int curr_x, int curr_y, unsigned char* first_pixel_components_to_be_embeded) {
+//     int i = 0;
+//     unsigned char first_pixel_components_to_fill = *first_pixel_components_to_be_embeded;
+
+//     for(int y = curr_y ; i < BYTE && y >= 0 ; y--) {
+//         int x = 0;
+//         if (y == curr_y) {
+//             x = curr_x + 1; // first pixel to be embeded was already embeded
+//         } 
+//         for( x ; i < BYTE && x < width ; x++ ) {
+//             pixel* pixel = image[y][x];
+//             //if(i < data_size){
+//                 pixel->blue = (pixel->blue & ~1) | (data[i++]-'0');
+//                 if(i < BYTE) {
+//                     pixel->green = (pixel->green & ~1) | (data[i++]-'0');
+//                     if(i < BYTE) {
+//                         pixel->red = (pixel->red & ~1) | (data[i++]-'0');
+//                     }
+//                     else
+//                     {
+//                         *first_pixel_components_to_be_embeded = 1;
+//                     }
+//                 }
+//                 else
+//                 {
+//                     *first_pixel_components_to_be_embeded = 2;
+//                 }
+//             //}
+//         }
+//     }
+// }
+
 static unsigned char* extract(pixel*** image, int width, int height) {
     int data_size = DATA_SIZE *BYTE;//TODO: get data from first 4 bytes
 
@@ -54,7 +87,7 @@ static unsigned char* extract(pixel*** image, int width, int height) {
     return data;
 }
 
-void run_lsb1(information* info) {
+void run_lsb1(information* info, unsigned char* data_stream) {
     int width = info->header->bmp_width;
     int height = info->header->bmp_height;
 
@@ -64,6 +97,10 @@ void run_lsb1(information* info) {
 
     const unsigned char * data = "0110110101101101";
     int data_size = DATA_SIZE * BYTE; // See DATA_SIZE define comment
+
+    //int data_stream_size = get_filelen_from_stream(data_stream); // size in BYTES
+
+
 
     //---------------steganography---------------
     
@@ -81,4 +118,13 @@ void run_lsb1(information* info) {
     print_array(extract(image, width, height),data_size);
     printf("\n");
 
+}
+
+void run_lsb1_embed(information* info, const unsigned char* data, long data_size) {
+    int width = info->header->bmp_width;
+    int height = info->header->bmp_height;
+
+    pixel*** image = info->matrix;
+
+    embed(data, data_size, image, width, height);
 }
