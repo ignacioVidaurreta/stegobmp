@@ -117,7 +117,7 @@ int store_byte_repr_and_size(file_data* data){
     return 0;
 }
 
-void translate_raw_to_ext(char* ret, char* raw_type){
+char* translate_raw_to_ext(char* ret, char* raw_type){
     bool err = false;
     if(strcmp(raw_type, TXT) == 0){
         ret = ".txt";
@@ -138,6 +138,7 @@ void translate_raw_to_ext(char* ret, char* raw_type){
         }
     }
 
+    return ret;
     // log_extension(ret, err, config);
 
 }
@@ -149,7 +150,7 @@ char* get_extension(char* filename){
     // TODO: memory leak
     char* ext = malloc(MAX_EXTENSION_LEN*sizeof(char));
 
-    translate_raw_to_ext(ext, raw_type);
+    ext = translate_raw_to_ext(ext, raw_type);
 
     free(raw_type);
     return ext;
