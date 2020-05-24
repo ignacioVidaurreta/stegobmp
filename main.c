@@ -36,6 +36,8 @@ int main(int argc, char * argv[]){
         // If this file isn't in your filesystem please create it
         char* filename = "dummy.txt";
 
+        information* info;
+
         int mode = get_mode(argc, argv);
         if (mode == EMBED){
             printf("embed");
@@ -55,7 +57,7 @@ int main(int argc, char * argv[]){
                 j=j+8;
             }
 
-            information* info = bmp_to_matrix("./images/ladoLSB1.bmp");
+            info = bmp_to_matrix("./images/ladoLSB1.bmp");
 
             run_lsb1_embed(info, (const unsigned char*) bit_stream,data_size);
 
@@ -65,7 +67,26 @@ int main(int argc, char * argv[]){
 
             return 1;
         }else if( mode == EXTRACT){
-            printf("extract");
+            printf("extract\n");
+
+            //esto no va a suceder aca
+            file_data*     data       = get_file_information(filename);
+            long data_size = (4 + data->filelen + strlen(data->extension) + 1);
+            unsigned char* stream = (unsigned char *)malloc(sizeof(unsigned char)*data_size);
+            
+            info = bmp_to_matrix("testfile.bmp");
+
+            printf("stream listo para extraer \n");
+
+            run_lsb1_extract(info, stream, data_size);
+
+            printf("extracccion realizada \n");
+
+            // split information after running lsb
+            file_data*     split_data = split(stream);
+            int result                = generate_output_file(split_data, "output_test");
+            printf("Result of output file: %d\n", result);
+
             return 1;
         }
 

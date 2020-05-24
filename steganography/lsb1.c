@@ -64,8 +64,8 @@ static void embed(const unsigned char* data, int data_size, pixel*** image, int 
 //     }
 // }
 
-static unsigned char* extract(pixel*** image, int width, int height) {
-    int data_size = DATA_SIZE *BYTE;//TODO: get data from first 4 bytes
+static unsigned char* extract(pixel*** image, int width, int height, long data_size) {
+   // int data_size = ;//TODO: get data from first 4 bytes
 
     int i = 0;
     unsigned char* data = malloc(sizeof(*data)*data_size);
@@ -115,7 +115,7 @@ void run_lsb1(information* info, unsigned char* data_stream) {
     printf("\n");
 
     printf("Extracted data: ");
-    print_array(extract(image, width, height),data_size);
+    //print_array(extract(image, width, height),data_size);
     printf("\n");
 
 }
@@ -126,5 +126,29 @@ void run_lsb1_embed(information* info, const unsigned char* data, long data_size
 
     pixel*** image = info->matrix;
 
+    printf("Data to embed: %s\n", (char*)data);
+    printf("Data to embed size: %ld\n", data_size);
+
+
     embed(data, data_size, image, width, height);
+}
+
+void run_lsb1_extract(information* info, unsigned char* data, long data_size) {
+    int width = info->header->bmp_width;
+    int height = info->header->bmp_height;
+
+    pixel*** image = info->matrix;
+
+    unsigned char* data_in_bits = extract(image, width, height, data_size*8);
+
+    print_array(data_in_bits,data_size);
+    printf("extraccion en bits realizada \n");
+
+    printf("Extracted data: %s", (char*)data_in_bits);
+
+    for(int i = 0 ; i < data_size ; i++) {
+        data[i] = byte_to_uchar(data_in_bits);
+        data_in_bits+=8;
+    }
+
 }
