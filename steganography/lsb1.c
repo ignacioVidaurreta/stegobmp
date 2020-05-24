@@ -75,8 +75,8 @@ static void embed(const unsigned char* data, int data_size, pixel*** image, int 
     }
 }
 
-static unsigned char* extract(pixel*** image, int width, int height) {
-    int data_size = DATA_SIZE *BYTE;//TODO: get data from first 4 bytes
+static unsigned char* extract(pixel*** image, int width, int height, long data_size) {
+    //int data_size = DATA_SIZE *BYTE;//TODO: get data from first 4 bytes
 
     int i = 0;
     unsigned char* data = malloc(sizeof(*data)*data_size);
