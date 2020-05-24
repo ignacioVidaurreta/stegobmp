@@ -22,11 +22,12 @@ void run_with_errors(int argc, char** argv){
     // when running this, filelen=454, len=458 (len of file_content, the one we write)
     struct config* program_config = parse_arguments(argc, argv);
     char* ext = get_extension(filename, program_config);
+    free_config(program_config);
 }
 // https://stackoverflow.com/questions/37538/how-do-i-determine-the-size-of-my-array-in-c
 int main(int argc, char * argv[]){
 
-    bool postmortem = false;
+    bool postmortem = true;
     if(postmortem){
        run_with_errors(argc, argv);
     }
