@@ -34,6 +34,18 @@ int main(int argc, char * argv[]){
         
         file_data*     data       = get_file_information(filename);
         unsigned char* stream     = concatenate(data);
+        
+        // stream to bits
+        long stream_size = 4 + data->filelen + strlen(data->extension) + 1;
+        // size of stream in bits
+        long data_size = (4 + data->filelen + strlen(data->extension) + 1)*8;
+        unsigned char* bit_stream = (unsigned char *)malloc(sizeof(unsigned char)*data_size);
+        int j=0;
+        for(int i=0; i < stream_size; i++) {
+            uchar_to_byte(bit_stream+j, stream[i]);
+        }
+
+        // split information after running lsb
         file_data*     split_data = split(stream);
         int result                = generate_output_file(split_data, "output_test");
         printf("Result of output file: %d\n", result);
