@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <assert.h>
+#include <sys/stat.h>
 
 #include "../include/base.h"
 #include "../include/logging.h"
@@ -58,6 +59,7 @@ char* read_file_type(char* file){
     // https://stackoverflow.com/questions/20108334/traverse-file-line-by-line-using-fscanf/20108623
     fscanf(fd, "%s %30[^\n]\n", buffer, filetype);
     fclose(fd);
+    free(buffer);
 
     return filetype;
 }
@@ -90,33 +92,32 @@ int store_byte_repr_and_size(file_data* data){
     char* filename = data->filename;
 
     fileptr = fopen(filename, "rb");                        // Open the file in binary mode
-    if(fileptr == NULL) {                                   // Some kind of problem when opening the file
-        return 1;
-    }
-    fseek(fileptr, 0, SEEK_END);                            // Jump to the end of the file
-    filelen = ftell(fileptr);                               // Get the current byte offset in the file
-    rewind(fileptr);                                        // Jump back to the beginning of the file
-
-    data->filelen = filelen;                                // Stores file len on data structure  
     
-    buffer = (char *)malloc(filelen * sizeof(char));        // Enough memory for the file
-    fread(buffer, filelen, 1, fileptr);                     // Read in the entire file
-    fclose(fileptr);                                        // Close the file
+    int fd = fileno(fileptr);
+    struct stat buff;
+    fstat(fd, &buff);
+    // MAX 2GB
+    filelen = buff.st_size;
+    data->filelen = filelen;  
+    
+    buffer = (char *)malloc(filelen * sizeof(char)+2);
+    fread(buffer, 1, filelen, fileptr);
+    buffer[filelen*sizeof(char)] = 0;
+    fclose(fileptr);
 
-    data->file_content = buffer;                            // Stores file content on data structure  
+    data->file_content = buffer;
 
     int len = strlen(buffer);
-    // printf("%ld, %d\n", filelen, len);
-    // for(int i=0; i<len; i++) {
-    //     printf("%d\n", buffer[i]);
-    // }
+    printf("%ld, %d\n", filelen, len);
+    for(int i=0; i<len; i++) {
+        printf("%d ", buffer[i]);
+    }
     assert(filelen == len);
 
     return 0;
 }
 
-char* translate_raw_to_ext(char* raw_type){
-    char* ret;
+void translate_raw_to_ext(char* ret, char* raw_type){
     bool err = false;
     if(strcmp(raw_type, TXT) == 0){
         ret = ".txt";
@@ -126,19 +127,18 @@ char* translate_raw_to_ext(char* raw_type){
     }else{
         raw_type = strtok(raw_type, " "); // Get the first word
         if(strcmp(raw_type, PDF) == 0){
-            ret = ".pdf";
+            strcpy(ret, ".pdf");
         }else if(strcmp(raw_type, JPEG) == 0){
-            ret = ".jpeg";
+            strcpy(ret, ".jpeg");
         }else if(strcmp(raw_type, PNG) == 0){
-            ret = ".png";
+            strcpy(ret, ".png");
         }else{
             err = true;
-            ret = "ERR";
+            strcpy(ret, "ERR");
         }
     }
 
     // log_extension(ret, err, config);
-    return ret;
 
 }
 
@@ -149,7 +149,7 @@ char* get_extension(char* filename){
     // TODO: memory leak
     char* ext = malloc(MAX_EXTENSION_LEN*sizeof(char));
 
-    ext = translate_raw_to_ext(raw_type);
+    translate_raw_to_ext(ext, raw_type);
 
     free(raw_type);
     return ext;

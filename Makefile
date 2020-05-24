@@ -17,6 +17,10 @@ sanitized:
 	$(CC) $(CFLAGS) -fsanitize=address $(FILES) -lm -o $(EXEC_NAME)
 	@echo "$(GREEN)Done!$(NORMAL)"
 
+
+valgrind: debug
+	valgrind --leak-check=full --show-leak-kinds=all --log-file="log/valgrind_output.txt" ./$(DEBUG_NAME) && cat log/valgrind_output.txt
+
 debug:
 	@echo "$(GREEN)Compiling in DEBUG mode ...$(NORMAL)"
 	$(CC) -g $(CFLAGS) $(FILES) -lm -o $(DEBUG_NAME)
