@@ -210,3 +210,18 @@ struct config* parse_arguments(int argc, char* argv[]){
 
     return program_config;
 }
+
+
+int get_mode(int argc, char** argv){
+    for(int i=0;  i<argc; i++){
+        char* param = argv[i];
+        if(strcmp(param, "-embed") == 0 ){
+            return EMBED;
+        }else if(strcmp(param, "-extract") == 0){
+            return EXTRACT;
+        }
+    }
+
+    return -1;
+
+}

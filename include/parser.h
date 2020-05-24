@@ -45,6 +45,7 @@ int set_steg_algorithm(char* steg_algo, struct config* config);
 int set_encrypt_algorithm(char* enc_algo, struct config* config);
 int set_chaining_mode(char* mode, struct config* config);
 int set_password(char* pass, struct config* config);
+int get_mode(int argc, char** argv);
 
 
 

@@ -11,26 +11,42 @@
 #include "include/lsb4.h"
 #include "include/base.h"
 
-
+void run_with_errors(int argc, char** argv){
+     // TODO: desconectamos get_file_information de program_config y dejamos
+    // el llamado a funcion de parse_arguments y asi y todo nos daban mal 
+    // las longitudes del archivo en store_byte_repr_and_size
+    // lo raro es que seguia pasando cuando unicamente estabamos inicializando 
+    // la config (ya no la estabamos usando entre los metodos que involucran buscar la file information).
+    char* filename = "dummy.txt";
+        
+    // when running this, filelen=454, len=458 (len of file_content, the one we write)
+    struct config* program_config = parse_arguments(argc, argv);
+    char* ext = get_extension(filename, program_config);
+}
 // https://stackoverflow.com/questions/37538/how-do-i-determine-the-size-of-my-array-in-c
 int main(int argc, char * argv[]){
 
-    
+    bool postmortem = false;
+    if(postmortem){
+       run_with_errors(argc, argv);
+    }
     char * mode = "TXT";
     
     if(strcmp(mode, "TXT") == 0){
         // If this file isn't in your filesystem please create it
         char* filename = "dummy.txt";
 
-        // TODO: desconectamos get_file_information de program_config y dejamos
-        // el llamado a funcion de parse_arguments y asi y todo nos daban mal 
-        // las longitudes del archivo en store_byte_repr_and_size
-        // lo raro es que seguia pasando cuando unicamente estabamos inicializando 
-        // la config (ya no la estabamos usando entre los metodos que involucran buscar la file information).
-        
-        // when running this, filelen=454, len=458 (len of file_content, the one we write)
-        // struct config* program_config = parse_arguments(argc, argv);
-        // char* ext = get_extension(filename, program_config);
+        int mode = get_mode(argc, argv);
+        if (mode == EMBED){
+            printf("embed");
+            return 1;
+        }else if( mode == EXTRACT){
+            printf("extract");
+            return 1;
+        }
+
+
+        printf("ERROR");
         
         file_data*     data       = get_file_information(filename);
         unsigned char* stream     = concatenate(data);
@@ -57,20 +73,4 @@ int main(int argc, char * argv[]){
         free(split_data);
         return 0;
     }
-
-    // information* info = bmp_to_matrix(argv[1]);
-
-    // if(strcmp(mode, "LSBI") == 0){
-    //     run_lsbi(info);
-    // }else if(strcmp(mode, "RC4") == 0){
-    //     rc4();
-    // }else if(strcmp(mode, "LSB1") == 0){
-    //     run_lsb1(info);
-    // }else if(strcmp(mode, "LSB4") == 0){
-    //     run_lsb4(info);
-    // }
-
-    // int result = matrix_to_bmp(info, "testfile.bmp");
-    // printf("Result:%d\n", result);
-    // free_information(info);
 }
