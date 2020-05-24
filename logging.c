@@ -4,6 +4,22 @@
 #include "include/parser.h"
 #include "include/logging.h"
 
+void log_error_aux(const char* error_message){
+    FILE* error_log_file = fopen("log/stegobmp_error.log", "a");
+    char* timestamp = get_timestamp();
+    fprintf(error_log_file, "[%s][ERROR] %s\n", timestamp, error_message);
+    free(timestamp);
+    fclose(error_log_file);
+}
+
+void log_info_aux(const char* message, struct config* config){
+    FILE* info_log_file = fopen("log/stegobmp_info.log", "a");
+    char* timestamp = get_timestamp();
+    fprintf(info_log_file, "[%s][INFO] %s\n", timestamp, message);
+    free(timestamp);
+    fclose(info_log_file);
+}
+
 void log_error(const char* error_message, struct config* config){
     char* timestamp = get_timestamp();
     fprintf(config->error_log, "[%s][ERROR] %s\n", timestamp, error_message);
