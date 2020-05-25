@@ -11,6 +11,7 @@
 #include "include/lsb4.h"
 #include "include/base.h"
 #include "include/errors.h"
+#include "include/print.h"
 
 void run_with_errors(int argc, char** argv){
      // TODO: desconectamos get_file_information de program_config y dejamos
@@ -51,7 +52,7 @@ int main(int argc, char * argv[]){
         printf("bmp_to_matrix done\n");
 
         // if embed_result is ERROR_SIZE, the stream size exceeds the available space in the image for lsb1 
-        int embed_result = run_lsb1_embed(info, (const unsigned char*) stream, stream_size);
+        int embed_result = run_lsb4_embed(info, (const unsigned char*) stream, stream_size);
         //TODO: improve error message. This error is being logged but we need to show it also in stdout
         if(embed_result == ERROR_SIZE)
             printf("[ERROR] Can't embed image: size exceeds available space");
@@ -60,7 +61,7 @@ int main(int argc, char * argv[]){
 
         int result = matrix_to_bmp(info, "testfile.bmp");
 
-        printf("matrix_to_bmp done with result = %d\n", embed_result,result);
+        printf("matrix_to_bmp done with result = %d\n", result);
 
         return SUCCESS;
     }else if( mode == EXTRACT){
@@ -69,8 +70,8 @@ int main(int argc, char * argv[]){
 
         printf("matrix ready to be extracted from\n");
 
-        unsigned char* stream = run_lsb1_extract(info); //this must be freed at the end
-
+        unsigned char* stream = run_lsb4_extract(info); //this must be freed at the end
+        
         printf("extraction accomplished\n");
 
         // split information after running lsb

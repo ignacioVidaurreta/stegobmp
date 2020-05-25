@@ -47,7 +47,7 @@ static int embed(const unsigned char* stream, int stream_size, pixel*** image, i
             uchar_to_byte(bits, stream[i++]);
         }
 
-        // get next pixel and embed, else only embed
+        // get next pixel and embed, else only embed in corresponding component
         if( j % COMPONENTS == 0) {
             pixel = image[y][x];
 
@@ -181,7 +181,7 @@ static unsigned char* extract(pixel*** image, int width, int height) {
             stream[i++] = byte_to_uchar((const unsigned char*)bits);
         }
 
-        // get next pixel and extract a bit, else only extract a bit
+        // get next pixel and extract a bit, else only extract a bit from corresponding component
         if( j % COMPONENTS == 0) {
             pixel = image[y][x];
 
