@@ -10,6 +10,7 @@
 #include "include/lsb1.h"
 #include "include/lsb4.h"
 #include "include/base.h"
+#include "include/errors.h"
 
 void run_with_errors(int argc, char** argv){
      // TODO: desconectamos get_file_information de program_config y dejamos
@@ -39,54 +40,45 @@ int main(int argc, char * argv[]){
 
     int mode = get_mode(argc, argv);
     if (mode == EMBED){
-        printf("embed");
-        
 
         file_data*     data       = get_file_information(filename);
         unsigned char* stream     = concatenate(data);
         
-        // stream to bits
         long stream_size = 4 + data->filelen + strlen(data->extension) + 1;
-        // size of stream in bits
-        long data_size = (4 + data->filelen + strlen(data->extension) + 1)*8;
-        unsigned char* bit_stream = (unsigned char *)malloc(sizeof(unsigned char)*data_size);
-        int j=0;
-        for(int i=0; i < stream_size; i++) {
-            uchar_to_byte(bit_stream+j, stream[i]);
-            j=j+8;
-        }
 
         info = bmp_to_matrix("./images/ladoLSB1.bmp");
 
-        run_lsb1_embed(info, (const unsigned char*) bit_stream,data_size);
+        printf("bmp_to_matrix done\n");
+
+        // if embed_result is ERROR_SIZE, the stream size exceeds the available space in the image for lsb1 
+        int embed_result = run_lsb1_embed(info, (const unsigned char*) stream, stream_size);
+        //TODO: improve error message. This error is being logged but we need to show it also in stdout
+        if(embed_result == ERROR_SIZE)
+            printf("[ERROR] Can't embed image: size exceeds available space");
+
+        printf("embeded done with result = %d\n", embed_result);
 
         int result = matrix_to_bmp(info, "testfile.bmp");
 
-        printf("\nResult: %d\n", result);
+        printf("matrix_to_bmp done with result = %d\n", embed_result,result);
 
-        return 1;
+        return SUCCESS;
     }else if( mode == EXTRACT){
-        printf("extract\n");
 
-        //esto no va a suceder aca
-        file_data*     data       = get_file_information(filename);
-        long data_size = (4 + data->filelen + strlen(data->extension) + 1);
-        unsigned char* stream = (unsigned char *)malloc(sizeof(unsigned char)*data_size);
-        
         info = bmp_to_matrix("testfile.bmp");
 
-        printf("stream listo para extraer \n");
+        printf("matrix ready to be extracted from\n");
 
-        run_lsb1_extract(info, stream, data_size);
+        unsigned char* stream = run_lsb1_extract(info); //this must be freed at the end
 
-        printf("extracccion realizada \n");
+        printf("extraction accomplished\n");
 
         // split information after running lsb
         file_data*     split_data = split(stream);
         int result                = generate_output_file(split_data, "output_test");
-        printf("Result of output file: %d\n", result);
+        printf("result of output file: %d\n", result);
 
-        return 1;
+        return SUCCESS;
     }
 
 

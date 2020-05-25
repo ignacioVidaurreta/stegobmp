@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include "parser.h"
 
+void log_error_aux(const char* error_message);
+void log_info_aux(const char* message, struct config* config);
 void log_error(const char* error_message, struct config* config);
 void log_info(const char* info_message, struct config* config);
 char* get_timestamp();

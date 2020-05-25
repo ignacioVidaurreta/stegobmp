@@ -18,7 +18,7 @@
 int bin_to_dec(const unsigned char* str, int n_bits) {
     int num = 0;
     for(int i = 0 ; i < n_bits ; i++) {
-        num += (str[i]-'0')*pow(2,n_bits-i-1);
+        num += (str[i]-CERO)*pow(2,n_bits-i-1);
     }
     return num;
 }
@@ -26,6 +26,7 @@ int bin_to_dec(const unsigned char* str, int n_bits) {
 // bits to byte
 unsigned char byte_to_uchar(const unsigned char* bits) {
     int num = bin_to_dec(bits, 8);
+    //printf("(%d)\n", num);
     return (unsigned char)num;
 }
 
@@ -108,10 +109,10 @@ int store_byte_repr_and_size(file_data* data){
     data->file_content = buffer;
 
     int len = strlen(buffer);
-    printf("%ld, %d\n", filelen, len);
-    for(int i=0; i<len; i++) {
-        printf("%d ", buffer[i]);
-    }
+    // printf("%ld, %d\n", filelen, len);
+    // for(int i=0; i<len; i++) {
+    //     printf("%d ", buffer[i]);
+    // }
     assert(filelen == len);
 
     return 0;
@@ -220,7 +221,7 @@ unsigned char* concatenate(file_data* data) {
 
 int get_filelen_from_stream(unsigned char* stream) {
     int filelen = (int)stream[3] | ( (int)stream[2] << 8 ) | ( (int)stream[1] << 16 ) | ( (int)stream[0] << 24 );;
-    printf("Filelen obtained: %d", filelen);
+    printf("filelen obtained: %d\n", filelen);
     return filelen;
 }
 
@@ -272,7 +273,7 @@ int generate_output_file(file_data* data, char* output_file_name) {
     }
     file[i] = '\0';
 
-    printf("File name:%s\n",file);
+    printf("file name:%s\n",file);
 
     FILE* output = fopen(file, "w");
     if(output == NULL) {
