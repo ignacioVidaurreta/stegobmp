@@ -130,6 +130,18 @@ int set_password(char* pass, struct config* config){
     return 1;
 }
 
+int set_file_to_embed(char* file,struct config* config ){
+    size_t len = strlen(file);
+    if(len >= MAX_LEN){
+        log_error("El nombre del archivo supera la capacidad máxima permitida", config);
+        return 0;
+    }
+
+    strncpy(config->in_file, file, len);
+    log_parameter(IN, config);
+    return 1;
+}
+
 int parse_param(int argc, char* argv[], int i, struct config* config, parameter given_param){
     if(is_invalid_param(argc, argv, i)){
         log_error("Parametro(s) invalido(s)", config);
@@ -149,6 +161,8 @@ int parse_param(int argc, char* argv[], int i, struct config* config, parameter 
             return set_chaining_mode(argv[i+1], config);
         case PASS:
             return set_password(argv[i+1], config);
+        case IN:
+            return set_file_to_embed(argv[i+1], config);
         default:
             return 0;
     }
@@ -191,6 +205,8 @@ struct config* parse_arguments(int argc, char* argv[]){
             mode = CHAIN;
         }else if(strcmp(param, "-pass") == 0){
             mode = PASS;
+        }else if(strcmp(param, "-in") == 0){
+            mode = IN;
         }
         if(mode != MODE){
             if(parse_param(argc, argv, i, program_config, mode) == 0){

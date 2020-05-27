@@ -108,6 +108,9 @@ void log_parameter(parameter param, struct config* config){
             sprintf(message, "Nombre del algoritmo de encadenamiento a usar: %s",
                     get_chain_alg_name(config->enc_algorithm));
             break;
+        case IN:
+            sprintf(message, "Nombre del archivo a ocultar: %s", config->in_file);
+            break;
         default:
             log_error("Unknown parameter", config);
             return;
