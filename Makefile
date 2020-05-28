@@ -38,10 +38,9 @@ clean:
 	rm -rf $(EXEC_NAME) $(DEBUG_NAME)
 	@echo "$(GREEN)Done!$(NORMAL)"
 
-clean-logs:
+purge-logs:
 	@echo "$(GREEN)Cleaning logs ...$(NORMAL)"
-	rm -rf log.old
-	mv log log.old
+	rm -rf log
 	@echo "$(GREEN)Done!$(NORMAL)"
 
 

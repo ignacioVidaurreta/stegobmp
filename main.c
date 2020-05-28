@@ -13,35 +13,19 @@
 #include "include/errors.h"
 #include "include/print.h"
 
-void run_with_errors(int argc, char** argv){
-     // TODO: desconectamos get_file_information de program_config y dejamos
-    // el llamado a funcion de parse_arguments y asi y todo nos daban mal 
-    // las longitudes del archivo en store_byte_repr_and_size
-    // lo raro es que seguia pasando cuando unicamente estabamos inicializando 
-    // la config (ya no la estabamos usando entre los metodos que involucran buscar la file information).
-    char* filename = "dummy.txt";
-        
-    // when running this, filelen=454, len=458 (len of file_content, the one we write)
-    struct config* program_config = parse_arguments(argc, argv);
-    char* ext = get_extension(filename, program_config);
-    free_config(program_config);
-}
 // https://stackoverflow.com/questions/37538/how-do-i-determine-the-size-of-my-array-in-c
 int main(int argc, char * argv[]){
 
-    bool postmortem = true;
-    if(postmortem){
-       run_with_errors(argc, argv);
+    struct config* program_config = parse_arguments(argc, argv);
+   
+    if(program_config == NULL){
+        log_error_aux("Aborting...");
+        return PARAM_ERROR;
     }
-    
-    // If this file isn't in your filesystem please create it
-    char* filename = "dummy.txt";
-
     information* info;
 
-    int mode = get_mode(argc, argv);
-    if (mode == EMBED){
-
+    if (program_config->mode == EMBED){
+        char* filename = program_config->in_file;
         file_data*     data       = get_file_information(filename);
         unsigned char* stream     = concatenate(data);
         
@@ -54,8 +38,9 @@ int main(int argc, char * argv[]){
         // if embed_result is ERROR_SIZE, the stream size exceeds the available space in the image for lsb1 
         int embed_result = run_lsb4_embed(info, (const unsigned char*) stream, stream_size);
         //TODO: improve error message. This error is being logged but we need to show it also in stdout
-        if(embed_result == ERROR_SIZE)
-            printf("[ERROR] Can't embed image: size exceeds available space");
+        if(embed_result == ERROR_SIZE){
+            log_error_aux("[ERROR] Can't embed image: size exceeds available space");
+        }
 
         printf("embeded done with result = %d\n", embed_result);
 
@@ -64,7 +49,7 @@ int main(int argc, char * argv[]){
         printf("matrix_to_bmp done with result = %d\n", result);
 
         return SUCCESS;
-    }else if( mode == EXTRACT){
+    }else if( program_config->mode == EXTRACT){
 
         info = bmp_to_matrix("testfile.bmp");
 
@@ -83,8 +68,8 @@ int main(int argc, char * argv[]){
     }
 
 
-    // log_info("Programa terminado \n\n", program_config);
-    // free_config(program_config);
+    log_info("Programa terminado \n\n", program_config);
+    free_config(program_config);
     
     // free(data);
     // free(split_data);

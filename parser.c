@@ -14,8 +14,8 @@ struct config* init_config(struct config* config){
     config->bmp_file  = malloc(MAX_LEN * sizeof(char));
     config->out_file  = malloc(MAX_LEN * sizeof(char));
     config->password  = malloc(MAX_LEN * sizeof(char));
-    config->error_log = fopen("log/stegobmp_error.log", "a");
-    config->info_log  = fopen("log/stegobmp_info.log", "a");
+    config->error_log = fopen("log/stegobmp.log", "a");
+    config->info_log  = fopen("log/stegobmp.log", "a");
 
     return config;
 }
@@ -40,6 +40,7 @@ int get_bmp_file(char* filename, struct config* config){
     
     size_t len = strlen(filename);
     if (len >= MAX_LEN){
+        log_error("BMP file exceeds the maximum allowed length", config);
         return 0;
     }
 
@@ -53,6 +54,7 @@ int get_out_file(char* filename, struct config* config){
     
     size_t len = strlen(filename);
     if(len >= MAX_LEN){
+        log_error("Output file name exceeds the maximum allowed length", config);
         return 0;
     }
     strncpy(config->out_file, filename, len);
@@ -70,7 +72,9 @@ int set_steg_algorithm(char* steg_algo, struct config* config){
     }else if(strcmp(steg_algo, "LSBI") == 0){
         config->steg_algorithm = LSBI;
     }else{
-        log_error("El algoritmo de Steganografiado insertado es invalido", config);
+        char* message = malloc(50*sizeof(char));
+        sprintf(message, "%s is not a valid steganography algorithm", steg_algo);
+        log_error(message, config);
         return 0;
     }
 
@@ -80,6 +84,7 @@ int set_steg_algorithm(char* steg_algo, struct config* config){
 }
 
 int set_encrypt_algorithm(char * enc_algo, struct config* config){
+    bool errors = false;
     
     if(strcmp(enc_algo, "aes128") == 0){
         config->enc_algorithm = AES128;
@@ -90,7 +95,9 @@ int set_encrypt_algorithm(char * enc_algo, struct config* config){
     }else if(strcmp(enc_algo, "des") == 0){
         config->enc_algorithm = DES;
     }else{
-        log_error("Algoritmo de encripcion invalido", config);
+        char* message = malloc(50*sizeof(char));
+        sprintf(message, "%s is not a valid encryption algorithm", enc_algo);
+        log_error(message, config);
         return 0;
     }
     
@@ -109,7 +116,9 @@ int set_chaining_mode(char* mode, struct config* config){
     }else if(strcmp(mode, "CBC") == 0){
         config->enc_mode = CBC;
     }else{
-        log_error("Modo de encadenamiento invalido", config);
+        char* message = malloc(50*sizeof(char));
+        sprintf(message, "%s is not a valid chaining mode", mode);
+        log_error(message, config);
         return 0;
     }
     
@@ -122,6 +131,7 @@ int set_password(char* pass, struct config* config){
     
     size_t len = strlen(pass);
     if(len >= MAX_LEN){
+        log_error("Password length exceed maximum allowed length", config);
         return 0;
     }
 
@@ -133,7 +143,7 @@ int set_password(char* pass, struct config* config){
 int set_file_to_embed(char* file,struct config* config ){
     size_t len = strlen(file);
     if(len >= MAX_LEN){
-        log_error("El nombre del archivo supera la capacidad máxima permitida", config);
+        log_error("The name of the file to embed exceeds the maximum allowed length", config);
         return 0;
     }
 
@@ -144,7 +154,7 @@ int set_file_to_embed(char* file,struct config* config ){
 
 int parse_param(int argc, char* argv[], int i, struct config* config, parameter given_param){
     if(is_invalid_param(argc, argv, i)){
-        log_error("Parametro(s) invalido(s)", config);
+        log_error("Invalid parameter(s)", config);
         return 0;
     }
 
@@ -173,6 +183,10 @@ int parse_param(int argc, char* argv[], int i, struct config* config, parameter 
 void init_log_message(char* program_name, int arg_num, struct config* program_config){
     char format_info[100] = {'\0'};
     if( arg_num != 1){
+        if(arg_num != 1){
+            // Aside from -embed/-extract every other argument has a value associated with it.
+            arg_num = (arg_num -1)/2;
+        }
         sprintf(format_info, "Running %s with %d arguments", program_name, arg_num);
     }else{
         sprintf(format_info, "Running %s with %d argument", program_name, arg_num);
@@ -210,7 +224,7 @@ struct config* parse_arguments(int argc, char* argv[]){
         }
         if(mode != MODE){
             if(parse_param(argc, argv, i, program_config, mode) == 0){
-            return program_config;
+                return NULL;
             }
             i++; // Skip the param value (not valid for MODE)
         }
@@ -219,8 +233,8 @@ struct config* parse_arguments(int argc, char* argv[]){
     }
 
     if(missing_mode){
-        printf("[Error] Must specify if you are trying to embed an image or extract an embedde image\n");
-        log_error("Must specify if you are trying to embed an image or extract an embedde image\n", program_config);
+        log_error("Must specify if you are trying to embed an image or extract an embedded image", program_config);
+        return NULL;
         
     }
 
