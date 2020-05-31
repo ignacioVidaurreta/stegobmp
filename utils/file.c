@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 
 #include "../include/base.h"
+#include "../include/errors.h"
 #include "../include/file.h"
 #include "../include/logging.h"
 
@@ -17,14 +18,27 @@
 // TODO: Stop wasting so much memmory
 char* read_file_type(char* file){
     FILE *fd;
+    
     char *buffer = malloc(100*sizeof(char));
-
+    if(buffer == NULL) return NULL;
+    
     fd = fopen(file, "r");
+    if(fd == NULL) {
+        free(buffer);
+        return NULL;
+    }
+    
     char* filetype = malloc(100*sizeof(char));
+    if(filetype == NULL) {
+        free(buffer);
+        fclose(fd);
+        return NULL;
+    }
+    
     // https://stackoverflow.com/questions/20108334/traverse-file-line-by-line-using-fscanf/20108623
     fscanf(fd, "%s %30[^\n]\n", buffer, filetype);
-    fclose(fd);
     free(buffer);
+    fclose(fd);
 
     return filetype;
 }
@@ -57,6 +71,9 @@ int store_byte_repr_and_size(file_data* data){
     char* filename = data->filename;
 
     fileptr = fopen(filename, "rb");                        // Open the file in binary mode
+    if(fileptr == NULL) {
+        return FAILURE;
+    }
     
     int fd = fileno(fileptr);
     struct stat buff;
@@ -66,8 +83,14 @@ int store_byte_repr_and_size(file_data* data){
     data->filelen = filelen;  
     
     buffer = (char *)malloc(filelen * sizeof(char)+2);
+    if(buffer == NULL) {
+        fclose(fileptr);
+        return FAILURE;
+    }
+
     fread(buffer, 1, filelen, fileptr);
     buffer[filelen*sizeof(char)] = 0;
+    
     fclose(fileptr);
 
     data->file_content = buffer;
@@ -75,7 +98,7 @@ int store_byte_repr_and_size(file_data* data){
     int len = strlen(buffer);
     assert(filelen == len);
 
-    return 0;
+    return SUCCESS;
 }
 
 char* translate_raw_to_ext(char* ret, char* raw_type){
@@ -110,19 +133,34 @@ char* get_extension(char* filename){
 
     // TODO: memory leak
     char* ext = malloc(MAX_EXTENSION_LEN*sizeof(char));
+    if(ext == NULL) {
+        return NULL;
+    }
 
     ext = translate_raw_to_ext(ext, raw_type);
 
-    free(raw_type);
+    // TODO: check but I think this is an invalid free
+    // free(raw_type);
     return ext;
 }
 
 // TODO: eventually include program config for logs
 file_data* get_file_information(char* filename) {
+    
     file_data* data = malloc(sizeof(*data));
+    if(data == NULL) return NULL;
+    
     data->filename = filename;
-    store_byte_repr_and_size(data);
+    
+    int result = store_byte_repr_and_size(data);
+    if(result != SUCCESS) {
+        free(data);
+        return NULL;
+    }
+    
     data->extension = get_extension(filename);
+    // TODO: incluir aca que si extension es null devuelve null?
+
     return data;
 }
 
@@ -156,6 +194,7 @@ unsigned char* concatenate(file_data* data) {
     // filelen for file content + 1
     // strlen(extension) + 1 because it's ".ext\0"
     unsigned char* stream = malloc(DWORD_SIZE + data->filelen + strlen(data->extension) + 1);
+    if(stream == NULL) return NULL;
 
     // filelen | file content | extension
     append_filelen_to_stream(stream, data->filelen);
@@ -173,6 +212,8 @@ int get_filelen_from_stream(unsigned char* stream) {
 
 char* get_file_content_from_stream(int filelen, unsigned char* stream) {
     char* content = malloc(sizeof(unsigned char)*filelen);
+    if(content == NULL) return NULL;
+
     for(int i=0; i<filelen; i++) {
         content[i] = (char)stream[DWORD_SIZE + i];
     }
@@ -181,6 +222,8 @@ char* get_file_content_from_stream(int filelen, unsigned char* stream) {
 
 char* get_extension_from_stream(int filelen, unsigned char* stream) {
     char* extension = malloc(MAX_EXTENSION_LEN*sizeof(char));
+    if(extension == NULL) return NULL;
+
     int i = 0;
     while(stream[filelen + i]!='\0') {
         extension[i] = (char)stream[DWORD_SIZE + filelen + i];
@@ -195,6 +238,7 @@ char* get_extension_from_stream(int filelen, unsigned char* stream) {
 */
 file_data* split(unsigned char* stream) {
     file_data* data    = malloc(sizeof(*data));
+    if(data == NULL) return NULL;
     
     data->filelen      = get_filelen_from_stream(stream);
     data->file_content = get_file_content_from_stream(data->filelen, stream);
@@ -208,7 +252,10 @@ int generate_output_file(file_data* data, char* output_file_name) {
 
     int file_name_len = strlen(output_file_name);
     int len = file_name_len + MAX_EXTENSION_LEN;
+    
     char* file = malloc(sizeof(char)*len);
+    if(file == NULL) return FAILURE;
+    
     int i = 0;
     for(; i<file_name_len; i++) {
         file[i] = output_file_name[i];
@@ -223,9 +270,11 @@ int generate_output_file(file_data* data, char* output_file_name) {
 
     FILE* output = fopen(file, "w");
     if(output == NULL) {
-        return 1; // error
+        return FAILURE;
     }
+    
     fwrite(data->file_content,data->filelen, 1,output);
     fclose(output);
-    return 0; // success
+    
+    return SUCCESS;
 }
