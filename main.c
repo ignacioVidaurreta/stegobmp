@@ -9,7 +9,7 @@
 #include "include/lsbi.h"
 #include "include/lsb1.h"
 #include "include/lsb4.h"
-#include "include/base.h"
+#include "include/file.h"
 #include "include/errors.h"
 #include "include/print.h"
 
