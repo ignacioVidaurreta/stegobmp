@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "include/bmp.h"
+#include "include/errors.h"
 
 #define HEADER_SIZE 54
 
@@ -30,15 +31,28 @@ information* bmp_to_matrix(const char* filename) {
     file = fopen(filename, "r");
     if(file == NULL) {
         perror("Error opening file\n");
-        exit(1);
+        return NULL;
     }
 
     bmp_header* header = malloc(sizeof(*header));
+    if(header == NULL) {
+        fclose(file);
+        return NULL;
+    }
+
     fread(header,sizeof(*header),1,file);
 
     unsigned int height = header->bmp_height;
     unsigned int width = header->bmp_width;
+
     pixel*** matrix = malloc(sizeof(*matrix)*height);
+    if(matrix == NULL) {
+        fclose(file);
+        free(header);
+        return NULL;
+    }
+
+    // TODO: malloc errors handling here
     for(int i=0; i<height; i++) {
         matrix[i] = malloc(sizeof(**matrix)*width);
         for(int j=0; j<width; j++) {
@@ -60,11 +74,11 @@ information* bmp_to_matrix(const char* filename) {
 int matrix_to_bmp(information* info, char* file_name) {
     FILE* bmp_file = fopen(file_name, "w");
     if(bmp_file == NULL) {                                                  // Problems when opening the file...
-        return 1;                                                           // error
+        return FAILURE;
     }
     unsigned int result = fwrite(info->header, HEADER_SIZE, 1, bmp_file);   // Writes header into file
     if(result != 1) {                                                       // If it didn't write what it needed to write...
-        return 1;                                                           // error
+        return FAILURE;
     }
     unsigned int height = info->header->bmp_height;
     unsigned int width  = info->header->bmp_width;
@@ -72,10 +86,10 @@ int matrix_to_bmp(information* info, char* file_name) {
         for(int j=0; j<width; j++) {
             result = fwrite(info->matrix[i][j],sizeof(pixel), 1,bmp_file);  // Writes every pixel into file
             if(result != 1) {                                               // If it didn't write what it needed to write...
-                return 1;                                                   // error
+                return FAILURE;
             }
         }
     }
     fclose(bmp_file);
-    return 0;                                                               // success
+    return SUCCESS;
 }
