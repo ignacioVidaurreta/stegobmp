@@ -228,7 +228,7 @@ char* get_extension_from_stream(int filelen, unsigned char* stream) {
         extension[i] = (char)stream[DWORD_SIZE + filelen + i];
         i++;
     }
-    extension[DWORD_SIZE + filelen + i] = '\0';
+    extension[i] = '\0';
     return extension;
 }
 
