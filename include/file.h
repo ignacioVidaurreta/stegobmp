@@ -33,4 +33,7 @@ unsigned char* concatenate(file_data* data);
    output_file_name MUST NOT include extension */
 int generate_output_file(file_data* data, char* output_file_name);
 
+/* deallocates memory of file_data structure */
+void free_file_data(file_data* data);
+
 #endif /*   FILE_H */

@@ -48,6 +48,11 @@ int main(int argc, char * argv[]){
 
         printf("matrix_to_bmp done with result = %d\n", result);
 
+        free(stream);
+        free_file_data(data);
+        free_config(program_config);
+        free_information(info);
+
         return SUCCESS;
     }else if( program_config->mode == EXTRACT){
 
@@ -64,13 +69,18 @@ int main(int argc, char * argv[]){
         int result                = generate_output_file(split_data, "output_test");
         printf("result of output file: %d\n", result);
 
+        free(stream);
+        free_file_data(split_data);
+        free_config(program_config);
+        free_information(info);
+
         return SUCCESS;
     }
 
 
     log_info("Programa terminado \n\n", program_config);
     free_config(program_config);
-    
+
     // free(data);
     // free(split_data);
     return 0;

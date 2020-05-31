@@ -104,9 +104,9 @@ int store_byte_repr_and_size(file_data* data){
 char* translate_raw_to_ext(char* ret, char* raw_type){
     bool err = false;
     if(strcmp(raw_type, TXT) == 0){
-        ret = ".txt";
+        strcpy(ret, ".txt");
     }else if(strcmp(raw_type, C)==0){
-        ret = ".c";
+        strcpy(ret, ".c");
     
     }else{
         raw_type = strtok(raw_type, " "); // Get the first word
@@ -139,8 +139,7 @@ char* get_extension(char* filename){
 
     ext = translate_raw_to_ext(ext, raw_type);
 
-    // TODO: check but I think this is an invalid free
-    // free(raw_type);
+    free(raw_type);
     return ext;
 }
 
@@ -277,4 +276,10 @@ int generate_output_file(file_data* data, char* output_file_name) {
     fclose(output);
     
     return SUCCESS;
+}
+
+void free_file_data(file_data* data) {
+    free(data->file_content);
+    free(data->extension);
+    free(data);
 }
