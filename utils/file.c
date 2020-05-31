@@ -224,7 +224,7 @@ char* get_extension_from_stream(int filelen, unsigned char* stream) {
     if(extension == NULL) return NULL;
 
     int i = 0;
-    while(stream[filelen + i]!='\0') {
+    while(stream[DWORD_SIZE + filelen + i]!='\0') {
         extension[i] = (char)stream[DWORD_SIZE + filelen + i];
         i++;
     }
