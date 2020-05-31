@@ -119,14 +119,13 @@ static int calculate_extension_size(pixel*** image, int width, int height, long 
 
     pixel* pixel;
     for(int j = shift; ; j++) {
-        if(j % BYTE == 0 && j != 0) {
+        if(j % BYTE == 0 && j != shift) {
             data[i] = byte_to_uchar((const unsigned char*)bits);
-            if(data[i] == '\0')
+            if(data[i++] == '\0')
                 break;
-            i++;
         }
         
-        if( j % COMPONENTS == 0) {
+        if( j % COMPONENTS == 0 || j == shift) {
             pixel = image[y][x];
             if(x+1 == width) { 
                 y--;

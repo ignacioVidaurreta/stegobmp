@@ -144,14 +144,13 @@ static int calculate_extension_size(pixel*** image, int width, int height, long 
 
     pixel* pixel;
     for(int j = shift; ; j+=HALF_BYTE) {
-        if(j % BYTE == 0 && j != 0) {
+        if(j % BYTE == 0 && j != shift) {
             data[i] = byte_to_uchar((const unsigned char*)bits);
-            if(data[i] == '\0')
+            if(data[i++] == '\0')
                 break;
-            i++;
         }
         
-        if( j % (COMPONENTS*HALF_BYTE) == 0) {
+        if( j % (COMPONENTS*HALF_BYTE) == 0 || j == shift ) {
             pixel = image[y][x];
             if(x+1 == width) { 
                 y--;
@@ -160,6 +159,9 @@ static int calculate_extension_size(pixel*** image, int width, int height, long 
             else {
                 x++;
             }
+        }
+
+        if(j % (COMPONENTS*HALF_BYTE) == 0) {
             extract_from_component(pixel->blue, bits, j%BYTE);
         }
         else if(j % (COMPONENTS*HALF_BYTE) == 4) {
@@ -184,9 +186,9 @@ static unsigned char* extract(pixel*** image, int width, int height) {
     int extension_size = calculate_extension_size(image, width, height, data_size);
     long stream_size = SIZE_OF_LONG_IN_BYTES + data_size + extension_size;
 
-    // printf("extention_size = %d\n", extension_size);
-    // printf("data_size = %ld\n", data_size);
-    // printf("stream_size = %ld\n", stream_size);
+    printf("extention_size = %d\n", extension_size);
+    printf("data_size = %ld\n", data_size);
+    printf("stream_size = %ld\n", stream_size);
     
     // array of bytes that will contain the stream
     unsigned char* stream = malloc(sizeof(*stream)*(stream_size));
@@ -235,8 +237,8 @@ static unsigned char* extract(pixel*** image, int width, int height) {
     // update the stream array with its last byte
     stream[i++] = byte_to_uchar((const unsigned char*)bits);
 
-    // printf("\n");
-    // print_array(stream,stream_size);
+    printf("\n");
+    print_array(stream,stream_size);
 
     free(bits);            
     return stream;

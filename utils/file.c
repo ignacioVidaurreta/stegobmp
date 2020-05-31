@@ -82,14 +82,14 @@ int store_byte_repr_and_size(file_data* data){
     filelen = buff.st_size;
     data->filelen = filelen;  
     
-    buffer = (char *)malloc(filelen * sizeof(char)+2);
+    buffer = (char *)malloc(filelen * sizeof(char));
     if(buffer == NULL) {
         fclose(fileptr);
         return FAILURE;
     }
 
     fread(buffer, 1, filelen, fileptr);
-    buffer[filelen*sizeof(char)] = 0;
+    buffer[filelen*sizeof(char)] = '\0';
     
     fclose(fileptr);
 
