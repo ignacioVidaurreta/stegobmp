@@ -134,6 +134,8 @@ static int calculate_extension_size(pixel*** image, int width, int height, long 
             else {
                 x++;
             }
+        }
+        if(j % COMPONENTS == 0) {
             bits[j%BYTE] = (pixel->blue & 1) + CERO;
         }
         else if(j % COMPONENTS == 1) {
