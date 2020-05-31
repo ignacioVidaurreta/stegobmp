@@ -5,36 +5,6 @@
 
 #define HEADER_SIZE 54
 
-
-void print_header_info(bmp_header* header) {
-    printf("Size of struct %ld\n\n", sizeof(*header));
-    printf("Type: %d\n", header->type);
-    printf("File size: %d\n", header->bmp_size);
-    printf("Reserved 1: %d\n", header->reserved_1);
-    printf("Reserved 2: %d\n", header->reserved_2);
-    printf("Data offset: %d\n", header->bmp_data_offset);
-    printf("Header size: %d\n", header->bmp_header_size);
-    printf("Width: %d\n", header->bmp_width);
-    printf("Height: %d\n", header->bmp_height);
-    printf("Plane Number: %d\n", header->plane_number);
-    printf("Point size: %d\n", header->point_size);
-    printf("Compression: %d\n", header->compression);
-    printf("Image size: %d\n", header->image_size);
-    printf("Horizontal Resolution: %d\n", header->horizontal_resolution);
-    printf("Vertical Resolution: %d\n", header->vertical_resolution);
-    printf("Colour Table Size: %d\n", header->colour_table_size);
-    printf("Important Colour Counter: %d\n", header->important_colour_counter);
-}
-
-void print_pixel_matrix(pixel*** matrix, unsigned int height, unsigned int width) {
-    for(int i=0; i<height; i++) {
-        for(int j=0; j<width; j++) {
-            printf("[b:%d, g:%d, r:%d],", matrix[i][j]->blue, matrix[i][j]->green, matrix[i][j]->red);
-        }
-        printf("\n");
-    }
-}
-
 void free_header(bmp_header* header) {
     free(header);
 }

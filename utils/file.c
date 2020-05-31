@@ -73,10 +73,6 @@ int store_byte_repr_and_size(file_data* data){
     data->file_content = buffer;
 
     int len = strlen(buffer);
-    // printf("%ld, %d\n", filelen, len);
-    // for(int i=0; i<len; i++) {
-    //     printf("%d ", buffer[i]);
-    // }
     assert(filelen == len);
 
     return 0;
@@ -135,7 +131,6 @@ void append_filelen_to_stream(unsigned char* stream, int filelen) {
     stream[1] = (filelen >> 16) & 0xFF;
     stream[2] = (filelen >> 8) & 0xFF;
     stream[3] = filelen & 0xFF;
-    // printf("Filelen: %d -- Hexa: %x, %x, %x, %x\n",filelen, stream[0],stream[1],stream[2],stream[3]);
 }
 
 void append_file_content_to_stream(unsigned char* stream, file_data* data) {
@@ -166,19 +161,6 @@ unsigned char* concatenate(file_data* data) {
     append_filelen_to_stream(stream, data->filelen);
     append_file_content_to_stream(stream, data);
     appeend_extension_to_stream(stream, data);
-    
-    // print stream
-    // long len = DWORD_SIZE + data->filelen + strlen(data->extension) + 1;
-    // for(int i=0; i<len; i++) {
-    //     if(i == 4) {
-    //         printf("\n");
-    //     }
-    //     if(i == 4+data->filelen) {
-    //         printf("\n");
-    //     }
-    //     printf("%c-", stream[i]);
-    // }
-    // printf("\n");
 
     return stream;
 }
