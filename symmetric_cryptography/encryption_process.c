@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "all.h"
+#include "../include/symmetric_cryptography.h"
 #include "../include/errors.h"
 
 #define DES "des"

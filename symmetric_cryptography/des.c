@@ -11,6 +11,9 @@
 #define DWORD 4
 #define DES_BLOCK_SIZE 8
 
+static DES_cblock iv = {(unsigned char)10,(unsigned char)20,(unsigned char)30,(unsigned char)40,
+(unsigned char)50,(unsigned char)60,(unsigned char)70,(unsigned char)80};
+
 /*
 DES ENCRYPTION
 DES_cblock is an 8 unsigned char vector
@@ -30,14 +33,14 @@ DES_key_schedule* get_key_schedule(char* password) {
 /* Returns: size of encrypted message || encrypted(stream) */
 unsigned char* des_ecb_encrypt(char* password, unsigned char* stream, long stream_length) {
 
-    printf("Starting DES ECB encryption...\n");
+    // printf("Starting DES ECB encryption...\n");
 
     int needed_padding = DES_BLOCK_SIZE - stream_length%DES_BLOCK_SIZE;      // how many bytes do I need
     int complete_blocks = stream_length/DES_BLOCK_SIZE;     // qty of complete blocks
     long encrypted_size = stream_length + needed_padding;
 
-    printf("Original length: %ld, Needed padding: %d\nComplete blocks: %d\nEncrypted size: %ld\n",
-            stream_length, needed_padding, complete_blocks, encrypted_size);
+    // printf("Original length: %ld, Needed padding: %d\nComplete blocks: %d\nEncrypted size: %ld\n",
+    //         stream_length, needed_padding, complete_blocks, encrypted_size);
 
     unsigned char* encrypted_stream = malloc(sizeof(char)*DWORD + encrypted_size);
     if(encrypted_stream == NULL) {
@@ -49,18 +52,19 @@ unsigned char* des_ecb_encrypt(char* password, unsigned char* stream, long strea
         free(encrypted_stream);
         return NULL;
     }
-    printf("Key already set\n");
+    
+    // printf("Key already set\n");
 
     for(int i=0; i<complete_blocks; i++) {
         // we encrypt each block and store it in our stream
         DES_ecb_encrypt((const_DES_cblock*)(stream+(i*DES_BLOCK_SIZE)), (DES_cblock*)(encrypted_stream+DWORD+(i*DES_BLOCK_SIZE)), ks, DES_ENCRYPT);
     }
 
-    printf("Complete blocks done\n");
+    // printf("Complete blocks done\n");
 
     if(needed_padding > 0) {
     
-        printf("Starting padding\n");
+        // printf("Starting padding\n");
     
         unsigned char* last_block = malloc(DES_BLOCK_SIZE*sizeof(unsigned char));
         if(last_block == NULL) {
@@ -76,24 +80,25 @@ unsigned char* des_ecb_encrypt(char* password, unsigned char* stream, long strea
         free(last_block); 
     }
     
-    printf("Finished encryption\n");
+    // printf("Finished encryption\n");
     
     append_len_to_stream(encrypted_stream, encrypted_size); // we store the encrypted length in our stream
     
-    printf("Finished concatenation\n");
+    // printf("Finished concatenation\n");
+    
     free(ks);
     return encrypted_stream;
 }
 
 unsigned char* des_ecb_decrypt(char* password, unsigned char* encrypted_stream) {
     
-    printf("Starting DES ECB decryption...\n");
+    // printf("Starting DES ECB decryption...\n");
 
     long len = get_len_from_stream(encrypted_stream);
     int blocks = len/DES_BLOCK_SIZE;
     unsigned char* start = encrypted_stream + DWORD;
     
-    printf("Length: %ld\nBlocks: %d\n",len, blocks);
+    // printf("Length: %ld\nBlocks: %d\n",len, blocks);
 
     unsigned char* decrypted_stream = malloc(sizeof(unsigned char)*len);
     if(decrypted_stream == NULL) return NULL;
@@ -104,7 +109,7 @@ unsigned char* des_ecb_decrypt(char* password, unsigned char* encrypted_stream) 
         return NULL;
     }
 
-    printf("Key already set\n");
+    // printf("Key already set\n");
     
     for(int i=0; i<blocks; i++) {
         // we decrypt each block and store it in our stream
@@ -112,14 +117,15 @@ unsigned char* des_ecb_decrypt(char* password, unsigned char* encrypted_stream) 
                              (DES_cblock*)(decrypted_stream+(i*DES_BLOCK_SIZE)), ks, DES_DECRYPT);
     }
 
-    printf("Decryption completed\n");
+    // printf("Decryption completed\n");
 
     free(ks);
     return decrypted_stream;
 }
 
 unsigned char* des_cbc_encrypt(char* password, unsigned char* stream, long stream_length) {
-    printf("Starting DES CBC encryption...\n");
+    
+    // printf("Starting DES CBC encryption...\n");
 
     long encrypted_size = stream_length + DES_BLOCK_SIZE - stream_length%DES_BLOCK_SIZE;
 
@@ -133,28 +139,44 @@ unsigned char* des_cbc_encrypt(char* password, unsigned char* stream, long strea
         free(encrypted_stream);
         return NULL;
     }
-    printf("Key already set\n");
-
-    DES_cblock* iv = (DES_cblock*)get_iv(DES_BLOCK_SIZE);
-    if(iv == NULL){
-        free(encrypted_stream);
-        free(ks);
-        return NULL;
-    }
-
-    DES_ncbc_encrypt(stream, encrypted_stream+DWORD, stream_length, ks, iv, DES_ENCRYPT);
-
-    printf("Finished encryption\n");
     
-    append_len_to_stream(encrypted_stream, encrypted_size); // we store the encrypted length in our stream
+    // printf("Key already set\n");
+
+    DES_ncbc_encrypt(stream, encrypted_stream+DWORD, stream_length, ks, &iv, DES_ENCRYPT);
+
+    // printf("Finished encryption\n");
     
-    printf("Finished concatenation\n");
+    append_len_to_stream(encrypted_stream, stream_length); // we store the encrypted length in our stream
+    
+    // printf("Finished concatenation\n");
+    
     free(ks);
-    free(iv);
-    
+
     return encrypted_stream;
 }
 
 unsigned char* des_cbc_decrypt(char* password, unsigned char* encrypted_stream) {
-    return NULL;
+    // printf("Starting DES CBC decryption...\n");
+
+    long len = get_len_from_stream(encrypted_stream);
+    
+    // printf("Length: %ld\n",len);
+
+    unsigned char* decrypted_stream = malloc(sizeof(unsigned char)*len);
+    if(decrypted_stream == NULL) return NULL;
+
+    DES_key_schedule* ks = get_key_schedule(password);
+    if(ks == NULL) {
+        free(decrypted_stream);
+        return NULL;
+    }
+
+    // printf("Key already set\n");
+    
+    DES_ncbc_encrypt(encrypted_stream+DWORD, decrypted_stream, len, ks, &iv, DES_DECRYPT);
+
+    // printf("Decryption completed\n");
+
+    free(ks);
+    return decrypted_stream;
 }

@@ -2,6 +2,7 @@
 #include "CuTest.h"
 
 CuSuite* ConfigRC4Suite();
+CuSuite* SymmetricCryptographySuite();
 
 
 void RunAllTests(void){
@@ -9,6 +10,7 @@ void RunAllTests(void){
     CuSuite* suite = CuSuiteNew();
 
     CuSuiteAddSuite(suite, ConfigRC4Suite());
+    CuSuiteAddSuite(suite, SymmetricCryptographySuite());
 
     CuSuiteRun(suite);
     CuSuiteSummary(suite, output);
