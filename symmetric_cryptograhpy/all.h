@@ -1,6 +1,8 @@
 #ifndef ALL_H
 #define ALL_H
 
-int encrypt();
+
+unsigned char* des_cbc_encrypt(char* password, unsigned char* stream, long stream_length);
+unsigned char* des_cbc_decrypt(char* password, unsigned char* encrypted_stream);
 
 #endif /*   ALL_H */
