@@ -4,10 +4,11 @@
 
 #include "../include/errors.h"
 #include "../include/encryption_decryption.h"
+#include "../include/evp_encryption_decryption.h"
 
 //TODO: handle errors
 int epv_encrypt(unsigned char *stream, int stream_len, unsigned char *key,
-            unsigned char *iv, unsigned char *cipherstream, cryptographic_function* evp_function){
+            unsigned char *iv, unsigned char *cipherstream, cipher* evp_function){
     EVP_CIPHER_CTX *ctx;
 
     int len;
@@ -19,7 +20,7 @@ int epv_encrypt(unsigned char *stream, int stream_len, unsigned char *key,
         return FAILURE;
 
     // TODO: @MaruFuster preparar para distintos algoritmos y modos
-    if(1 != EVP_EncryptInit_ex(ctx, evp_function, NULL, key, iv))
+    if(1 != EVP_EncryptInit_ex(ctx, evp_function(), NULL, key, iv))
         return FAILURE;
 
     /*
@@ -45,7 +46,7 @@ int epv_encrypt(unsigned char *stream, int stream_len, unsigned char *key,
 }
 
 int epv_decrypt(unsigned char *cipherstream, int cipherstream_len, unsigned char *key,
-            unsigned char *iv, unsigned char *stream, cryptographic_function* evp_function){
+            unsigned char *iv, unsigned char *stream, cipher* evp_function){
 
     EVP_CIPHER_CTX *ctx;
 
@@ -58,7 +59,7 @@ int epv_decrypt(unsigned char *cipherstream, int cipherstream_len, unsigned char
         return FAILURE;
 
     // TODO: @MaruFuster preparar para distintos algoritmos y modos
-    if(1 != EVP_DecryptInit_ex(ctx, evp_function, NULL, key, iv))
+    if(1 != EVP_DecryptInit_ex(ctx, evp_function(), NULL, key, iv))
         return FAILURE;
 
     /*
