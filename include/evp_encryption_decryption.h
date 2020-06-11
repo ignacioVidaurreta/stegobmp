@@ -15,11 +15,11 @@ Neither of these functions are going to validate any of that.
 
 /* Returns legnth of cipherstream */
 int epv_encrypt(unsigned char *stream, int stream_len, unsigned char *key,
-            unsigned char *iv, unsigned char *cipherstream, const EVP_CIPHER * evp_function);
+            unsigned char *iv, unsigned char *cipherstream, cipher* evp_function);
 
 /* Returns length of decrypted stream */
 int epv_decrypt(unsigned char *cipherstream, int cipherstream_len, unsigned char *key,
-            unsigned char *iv, unsigned char *stream, const EVP_CIPHER * evp_function);
+            unsigned char *iv, unsigned char *stream, cipher* evp_function);
 
 
 #endif /*   EVP_ENCRYPTION_DECRYPTION_H */
