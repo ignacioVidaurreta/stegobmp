@@ -37,7 +37,7 @@ static cipher* ciphers[][4] = { \
 
 
 /* Returns encrypted/decrypted stream depending on operation */
-unsigned char* run_cipher_process(char* a, char* m, char* password, int operation) {    
+unsigned char* run_cipher_process(char* a, char* m, char* password, int operation, unsigned char* stream) {    
     int algorithm=-1, mode=-1;
 
     if(strcmp(DES, a) == 0)         algorithm = DES_i;
