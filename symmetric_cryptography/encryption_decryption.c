@@ -5,6 +5,7 @@
 #include <openssl/ossl_typ.h>
 
 #include "../include/errors.h"
+#include "../include/cryptography.h"
 #include "../include/evp_encryption_decryption.h"
 
 #define DES "des"
@@ -27,6 +28,8 @@
 #define CFB_i 2
 #define OFB_i 3
 
+#define BLOCK_SIZE 8
+
 static unsigned char* iv = (unsigned char*)"abcdabcdabcdabcdabcdabcdabcdabcd";
 
 static cipher* ciphers[][4] = { \
@@ -37,7 +40,7 @@ static cipher* ciphers[][4] = { \
 
 
 /* Returns encrypted/decrypted stream depending on operation */
-unsigned char* run_cipher_process(char* a, char* m, char* password, int operation, unsigned char* stream) {    
+unsigned char* run_cipher_process(char* a, char* m, char* password, int operation, unsigned char* stream, int stream_len) {    
     int algorithm=-1, mode=-1;
 
     if(strcmp(DES, a) == 0)         algorithm = DES_i;
@@ -54,6 +57,16 @@ unsigned char* run_cipher_process(char* a, char* m, char* password, int operatio
     else 
         return stream;
 
+    unsigned char* key = compress_password(password);
+    int padding = BLOCK_SIZE - (stream_len % BLOCK_SIZE);
+    unsigned char* output_stream = malloc(sizeof(unsigned char)*(stream_len + padding));
+
+    if(operation == ENCRYPT) {
+        int output_len = epv_encrypt(stream, stream_len, key, iv, output_stream, ciphers[algorithm][mode]);
+    }
+    else if(operation == DECRYPT) {
+        int output_len = epv_decrypt(stream, stream_len, key, iv, output_stream, ciphers[algorithm][mode]);
+    }
 
     return stream;
 }

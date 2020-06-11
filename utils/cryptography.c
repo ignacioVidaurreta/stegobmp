@@ -3,9 +3,11 @@
 #include <string.h>
 #include <openssl/sha.h>
 
+#define BYTES_IN_256_BITS 32
+
 unsigned char* compress_password(const char* password) {
-    unsigned char* hash = malloc(20*sizeof(unsigned char));
-    SHA1((unsigned char*)password, strlen(password), hash);
+    unsigned char* hash = malloc(BYTES_IN_256_BITS*sizeof(unsigned char));
+    SHA256((unsigned char*)password, strlen(password), hash);
     return hash; 
 }
 
