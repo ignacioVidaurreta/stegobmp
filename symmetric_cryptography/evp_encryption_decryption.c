@@ -1,8 +1,13 @@
 #include <stdio.h>
+#include <openssl/evp.h> 
 #include <openssl/ossl_typ.h>
 
-int encrypt(unsigned char *stream, int stream_len, unsigned char *key,
-            unsigned char *iv, unsigned char *cipherstream){
+#include "../include/errors.h"
+#include "../include/encryption_decryption.h"
+
+//TODO: handle errors
+int epv_encrypt(unsigned char *stream, int stream_len, unsigned char *key,
+            unsigned char *iv, unsigned char *cipherstream, cryptographic_function* evp_function){
     EVP_CIPHER_CTX *ctx;
 
     int len;
@@ -11,18 +16,18 @@ int encrypt(unsigned char *stream, int stream_len, unsigned char *key,
 
     /* Create and initialise the context */
     if(!(ctx = EVP_CIPHER_CTX_new()))
-        handleErrors();
+        return FAILURE;
 
     // TODO: @MaruFuster preparar para distintos algoritmos y modos
-    if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv))
-        handleErrors();
+    if(1 != EVP_EncryptInit_ex(ctx, evp_function, NULL, key, iv))
+        return FAILURE;
 
     /*
      * Provide the message to be encrypted, and obtain the encrypted output.
      * EVP_EncryptUpdate can be called multiple times if necessary
      */
     if(1 != EVP_EncryptUpdate(ctx, cipherstream, &len, stream, stream_len))
-        handleErrors();
+        return FAILURE;
     cipherstream_len = len;
 
     /*
@@ -30,7 +35,7 @@ int encrypt(unsigned char *stream, int stream_len, unsigned char *key,
      * this stage.
      */
     if(1 != EVP_EncryptFinal_ex(ctx, cipherstream + len, &len))
-        handleErrors();
+        return FAILURE;
     cipherstream_len += len;
 
     /* Clean up */
@@ -39,8 +44,8 @@ int encrypt(unsigned char *stream, int stream_len, unsigned char *key,
     return cipherstream_len;
 }
 
-int decrypt(unsigned char *cipherstream, int cipherstream_len, unsigned char *key,
-            unsigned char *iv, unsigned char *stream){
+int epv_decrypt(unsigned char *cipherstream, int cipherstream_len, unsigned char *key,
+            unsigned char *iv, unsigned char *stream, cryptographic_function* evp_function){
 
     EVP_CIPHER_CTX *ctx;
 
@@ -50,18 +55,18 @@ int decrypt(unsigned char *cipherstream, int cipherstream_len, unsigned char *ke
 
     /* Create and initialise the context */
     if(!(ctx = EVP_CIPHER_CTX_new()))
-        handleErrors();
+        return FAILURE;
 
     // TODO: @MaruFuster preparar para distintos algoritmos y modos
-    if(1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv))
-        handleErrors();
+    if(1 != EVP_DecryptInit_ex(ctx, evp_function, NULL, key, iv))
+        return FAILURE;
 
     /*
      * Provide the message to be decrypted, and obtain the plaintext output.
      * EVP_DecryptUpdate can be called multiple times if necessary.
      */
     if(1 != EVP_DecryptUpdate(ctx, stream, &len, cipherstream, cipherstream_len))
-        handleErrors();
+        return FAILURE;
     stream_len = len;
 
     /*
@@ -69,7 +74,7 @@ int decrypt(unsigned char *cipherstream, int cipherstream_len, unsigned char *ke
      * this stage.
      */
     if(1 != EVP_DecryptFinal_ex(ctx, stream + len, &len))
-        handleErrors();
+        return FAILURE;
     stream_len += len;
 
     /* Clean up */

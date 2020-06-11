@@ -1,5 +1,7 @@
-#ifndef SYMMETRIC_CRYPTOGRAPHY_H
-#define SYMMETRIC_CRYPTOGRAPHY_H
+#ifndef ENCRYPTION_DECRYPTION_H
+#define ENCRYPTION_DECRYPTION_H
+
+typedef void (cryptographic_function)(int);
 
 
-#endif /*   SYMMETRIC_CRYPTOGRAPHY_H */
+#endif /*   ENCRYPTION_DECRYPTION_H */

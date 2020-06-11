@@ -4,7 +4,6 @@
 #include <openssl/evp.h>
 #include <openssl/ossl_typ.h>
 
-#include "../include/symmetric_cryptography.h"
 #include "../include/errors.h"
 
 #define DES "des"
@@ -27,8 +26,7 @@
 #define CFB_i 2
 #define OFB_i 3
 
-static unsigned char* iv = {(unsigned char)10,(unsigned char)20,(unsigned char)30,(unsigned char)40,
-(unsigned char)50,(unsigned char)60,(unsigned char)70,(unsigned char)80};
+static unsigned char* iv = NULL;
 
 // TODO: esto deberia retornar otra cosa
 int run_encryption(char* a, char* m, char* password) {    
