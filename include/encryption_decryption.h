@@ -1,0 +1,8 @@
+#ifndef ENCRYPTION_DECRYPTION_H
+#define ENCRYPTION_DECRYPTION_H
+
+#define ENCRYPT 0
+#define DECRYPT 1
+
+
+#endif /*   ENCRYPTION_DECRYPTION_H */

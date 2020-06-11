@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <openssl/evp.h>
+#include <openssl/ossl_typ.h>
 
-#include "../include/symmetric_cryptography.h"
 #include "../include/errors.h"
+#include "../include/evp_encryption_decryption.h"
 
 #define DES "des"
 #define AES128 "aes128"
@@ -25,8 +27,17 @@
 #define CFB_i 2
 #define OFB_i 3
 
-// TODO: esto deberia retornar otra cosa
-int run_encryption(char* a, char* m, char* password) {    
+static unsigned char* iv = (unsigned char*)"abcdabcdabcdabcdabcdabcdabcdabcd";
+
+static cipher* ciphers[][4] = { \
+    {EVP_des_cbc,     EVP_des_ecb,     EVP_des_cfb,     EVP_des_ofb},
+    {EVP_aes_128_cbc, EVP_aes_128_ecb, EVP_aes_128_cfb, EVP_aes_128_ofb},
+    {EVP_aes_192_cbc, EVP_aes_192_ecb, EVP_aes_192_cfb, EVP_aes_192_ofb},
+    {EVP_aes_256_cbc, EVP_aes_256_ecb, EVP_aes_256_cfb, EVP_aes_256_ofb}};
+
+
+/* Returns encrypted/decrypted stream depending on operation */
+unsigned char* run_cipher_process(char* a, char* m, char* password, int operation) {    
     int algorithm=-1, mode=-1;
 
     if(strcmp(DES, a) == 0)         algorithm = DES_i;
@@ -34,31 +45,15 @@ int run_encryption(char* a, char* m, char* password) {
     else if(strcmp(AES192, a) == 0) algorithm = AES192_i;
     else if(strcmp(AES256, a) == 0) algorithm = AES256_i;
     else 
-        return PARAM_ERROR;
+        return NULL;
 
     if(strcmp(CBC, m) == 0)      mode = CBC_i;
     else if(strcmp(ECB, m) == 0) mode = ECB_i;
     else if(strcmp(CFB, m) == 0) mode = CFB_i;
     else if(strcmp(OFB, m) == 0) mode = OFB_i;
     else 
-        return PARAM_ERROR;
+        return NULL;
 
 
-    return SUCCESS;
+    return NULL;
 }
-
-// int main(int argc, char * argv[]){
-
-//     char* message = "hola que tal amigos";
-//     printf("Original message: %s\n", message);
-
-//     long len = (long)strlen(message);
-//     unsigned char* encrypted_stream = des_cbc_encrypt("pass", (unsigned char*)message, len);
-//     // unsigned char* decrypted_stream = des_cbc_decrypt("pass", encrypted_stream);
-    
-//     // char* decrypted_message = (char*)decrypted_stream;
-//     // printf("Decrypted message: %s\n", decrypted_message);
-//     // free(encrypted_stream);
-//     // free(decrypted_stream);
-//     // return 0;
-// }

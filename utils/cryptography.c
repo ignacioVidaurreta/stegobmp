@@ -3,7 +3,6 @@
 #include <string.h>
 #include <openssl/sha.h>
 
-// size should be lower or equal to 160 bits
 unsigned char* compress_password(const char* password) {
     unsigned char* hash = malloc(20*sizeof(unsigned char));
     SHA1((unsigned char*)password, strlen(password), hash);
