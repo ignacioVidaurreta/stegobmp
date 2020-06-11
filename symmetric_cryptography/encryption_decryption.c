@@ -45,15 +45,15 @@ unsigned char* run_cipher_process(char* a, char* m, char* password, int operatio
     else if(strcmp(AES192, a) == 0) algorithm = AES192_i;
     else if(strcmp(AES256, a) == 0) algorithm = AES256_i;
     else 
-        return NULL;
+        return stream;
 
     if(strcmp(CBC, m) == 0)      mode = CBC_i;
     else if(strcmp(ECB, m) == 0) mode = ECB_i;
     else if(strcmp(CFB, m) == 0) mode = CFB_i;
     else if(strcmp(OFB, m) == 0) mode = OFB_i;
     else 
-        return NULL;
+        return stream;
 
 
-    return NULL;
+    return stream;
 }
