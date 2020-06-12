@@ -40,7 +40,11 @@ static cipher* ciphers[][4] = { \
 
 
 /* Returns encrypted/decrypted stream depending on operation */
-unsigned char* run_cipher_process(char* a, char* m, char* password, int operation, unsigned char* stream, int stream_len) {    
+unsigned char* run_cipher_process(char* a, char* m, char* password,
+    int operation, unsigned char* stream, int stream_len) {    
+    
+    // printf("Starting cipher process\n");
+    
     int algorithm=-1, mode=-1;
 
     if(strcmp(DES, a) == 0)         algorithm = DES_i;
@@ -57,9 +61,22 @@ unsigned char* run_cipher_process(char* a, char* m, char* password, int operatio
     else 
         return stream;
 
+    // printf("Chose algorithm %d and mode %d\n",algorithm, mode);;
+
     unsigned char* key = compress_password(password);
+    
+    // printf("Password compressed to 256 bits\n");
+    // for(int i=0; i<32; i++) {
+    //     printf("%d ",key[i]);
+    // }
+    // printf("\n");
+
     int padding = BLOCK_SIZE - (stream_len % BLOCK_SIZE);
-    unsigned char* output_stream = malloc(sizeof(unsigned char)*(stream_len + padding));
+    
+    // TODO: check if 2 is enough
+    unsigned char* output_stream = malloc(sizeof(unsigned char)*(2*stream_len + padding));
+    
+    //printf("Needed padding: %d\n", padding);
 
     if(operation == ENCRYPT) {
         int output_len = epv_encrypt(stream, stream_len, key, iv, output_stream, ciphers[algorithm][mode]);
