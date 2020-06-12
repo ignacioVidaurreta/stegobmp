@@ -6,6 +6,7 @@
 
 #include "../include/errors.h"
 #include "../include/cryptography.h"
+#include "../include/encryption_decryption.h"
 #include "../include/evp_encryption_decryption.h"
 
 #define DES "des"
@@ -29,6 +30,10 @@
 #define OFB_i 3
 
 #define BLOCK_SIZE 8
+#define DWORD 4
+
+#define FALSE 0
+
 
 static unsigned char* iv = (unsigned char*)"abcdabcdabcdabcdabcdabcdabcdabcd";
 
@@ -39,9 +44,9 @@ static cipher* ciphers[][4] = { \
     {EVP_aes_256_cbc, EVP_aes_256_ecb, EVP_aes_256_cfb, EVP_aes_256_ofb}};
 
 
-/* Returns encrypted/decrypted stream depending on operation */
-unsigned char* run_cipher_process(char* a, char* m, char* password,
-    int operation, unsigned char* stream, int stream_len) {    
+/* Returns encrypted/decrypted stream depending on operation + len of corresponding stream */
+cipher_info* run_cipher_process(char* a, char* m, char* password,
+    int operation, unsigned char* stream, int stream_len, int append_len) {    
 
     // printf("Starting cipher process\n");
     
@@ -61,29 +66,28 @@ unsigned char* run_cipher_process(char* a, char* m, char* password,
     else 
         return NULL;
 
-    // printf("Chose algorithm %d and mode %d\n",algorithm, mode);;
+    // printf("Chose algorithm %d and mode %d\n",algorithm, mode);
 
     unsigned char* key = compress_password(password);
-    
-    // printf("Password compressed to 256 bits\n");
-    // for(int i=0; i<32; i++) {
-    //     printf("%d ",key[i]);
-    // }
-    // printf("\n");
 
-    int padding = BLOCK_SIZE - (stream_len % BLOCK_SIZE);
-    
-    // TODO: check if 2 is enough
-    unsigned char* output_stream = malloc(sizeof(unsigned char)*(2*stream_len + padding));
-    
-    //printf("Needed padding: %d\n", padding);
+    // TODO: check if 2 is enough or too much
+    unsigned char* output_stream = malloc(sizeof(unsigned char)*(2*stream_len));
 
+    int output_len;
     if(operation == ENCRYPT) {
-        int output_len = epv_encrypt(stream, stream_len, key, iv, output_stream, ciphers[algorithm][mode]);
+        int offset = append_len == FALSE ? 0 : DWORD;
+        output_len = epv_encrypt(stream, stream_len, key, iv, output_stream + offset, ciphers[algorithm][mode]);
+        if(offset) {
+            append_len_to_stream(output_stream, output_len);
+        }
     }
     else if(operation == DECRYPT) {
-        int output_len = epv_decrypt(stream, stream_len, key, iv, output_stream, ciphers[algorithm][mode]);
+        output_len = epv_decrypt(stream, stream_len, key, iv, output_stream, ciphers[algorithm][mode]);
     }
 
-    return stream;
+    cipher_info* info = malloc(sizeof(*info));
+    info->output_len = output_len;
+    info->output_stream = output_stream;
+
+    return info;
 }
