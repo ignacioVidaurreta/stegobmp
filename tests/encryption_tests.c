@@ -24,6 +24,18 @@ test_struct* initialize_parameters(char* algorithm, char* mode) {
     return parameters;
 }
 
+void test_upper_case_will_return_null(CuTest *tc){
+    test_struct* p = initialize_parameters("DES", "cbc");
+    
+    int operation = ENCRYPT;
+    unsigned char* encrypted = run_cipher_process(p->algorithm, p->mode, p->password, operation, p->stream, p->stream_len);
+    
+    operation = DECRYPT;
+    unsigned char* decrypted = run_cipher_process(p->algorithm, p->mode, p->password, operation, p->stream, p->stream_len);
+    
+    CuAssertStrEquals(tc, NULL, decrypted);
+}
+
 void test_des_cbc(CuTest *tc){
     test_struct* p = initialize_parameters("des", "cbc");
     
@@ -218,6 +230,7 @@ void test_aes_256_ofb(CuTest *tc){
 
 CuSuite* SymmetricCryptographySuite() {
     CuSuite* suite = CuSuiteNew();
+    SUITE_ADD_TEST(suite, test_upper_case_will_return_null);
     SUITE_ADD_TEST(suite, test_des_cbc);
     SUITE_ADD_TEST(suite, test_des_ecb);
     SUITE_ADD_TEST(suite, test_des_cfb);

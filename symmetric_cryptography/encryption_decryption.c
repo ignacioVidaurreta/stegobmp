@@ -42,7 +42,7 @@ static cipher* ciphers[][4] = { \
 /* Returns encrypted/decrypted stream depending on operation */
 unsigned char* run_cipher_process(char* a, char* m, char* password,
     int operation, unsigned char* stream, int stream_len) {    
-    
+
     // printf("Starting cipher process\n");
     
     int algorithm=-1, mode=-1;
@@ -52,14 +52,14 @@ unsigned char* run_cipher_process(char* a, char* m, char* password,
     else if(strcmp(AES192, a) == 0) algorithm = AES192_i;
     else if(strcmp(AES256, a) == 0) algorithm = AES256_i;
     else 
-        return stream;
+        return NULL;
 
     if(strcmp(CBC, m) == 0)      mode = CBC_i;
     else if(strcmp(ECB, m) == 0) mode = ECB_i;
     else if(strcmp(CFB, m) == 0) mode = CFB_i;
     else if(strcmp(OFB, m) == 0) mode = OFB_i;
     else 
-        return stream;
+        return NULL;
 
     // printf("Chose algorithm %d and mode %d\n",algorithm, mode);;
 
