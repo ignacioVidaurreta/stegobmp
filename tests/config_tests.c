@@ -3,6 +3,7 @@
 #include <string.h>
 #include "CuTest.h"
 #include "../include/rc4.h"
+#include "../include/lsbi.h"
 
 
 void test_rc4_decodes_correctly(CuTest *tc){

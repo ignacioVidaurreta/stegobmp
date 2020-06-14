@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "../include/rc4.h"
 #include "../include/steganography.h"
@@ -11,6 +12,9 @@
 #include "../include/base.h"
 #include "../include/logging.h" 
 #include "../include/errors.h"
+#include "../include/rc4.h"
+#include "../include/string.h"
+
 
 #define BYTE 8
 #define COMPONENTS 3
@@ -19,6 +23,7 @@
 #define BLOCK_FOR_EXTENSION_SIZE 15  // this is an estimate block to read extension
 #define HOP 4
 #define BYTES_RESERVED_FOR_KEY 6
+#define CERO '0'
 
 // NOTE: stream_size != data_size
 // stream = encryption_key || data_size || data || extension
@@ -27,7 +32,7 @@
 
 // embeds a stream of bytes in image. If the size of stream is too large, 
 // the function logs an error and returns
-static int embed(const unsigned char* stream, int stream_size, pixel*** image, int width, int height) {
+int embed_lsbi(const unsigned char* stream, int stream_size, pixel*** image, int width, int height) {
 
     // log error if stream_size it's too long to insert in image
     // The longest that it will be able to fit is the number of
@@ -81,7 +86,7 @@ static int embed(const unsigned char* stream, int stream_size, pixel*** image, i
 }
 
 // extracts data_size which resides in first 4 bytes of embeded stream (size of long)
-static long extract_data_size(pixel*** image, int width, int height) {
+long extract_data_size(pixel*** image, int width, int height) {
     long size = 0;
     int x,y;
     long shift = BYTES_RESERVED_FOR_KEY*BYTE;
@@ -120,7 +125,7 @@ static long extract_data_size(pixel*** image, int width, int height) {
 // the index for the stream after data_size and data is shift = (SIZE_OF_LONG_IN_BYTES + data_size)*BYTE
 // we read from shift (where '.' should be) until we find '\0'
 // and we convert every 8 bits to a byte to check so
-static int calculate_extension_size(pixel*** image, int width, int height, long data_size) {
+int calculate_extension_size(pixel*** image, int width, int height, long data_size) {
     int size = 0, i =0;
     long shift = (BYTES_RESERVED_FOR_KEY + SIZE_OF_LONG_IN_BYTES + data_size)*BYTE;
     int x = (shift/COMPONENTS) % width, y = height-1-((shift/COMPONENTS) / width);
@@ -165,10 +170,10 @@ static int calculate_extension_size(pixel*** image, int width, int height, long 
 
 
 // extracts a stream of bytes from an image
-static unsigned char* extract(pixel*** image, int width, int height) {
+unsigned char* extract_lsbi(pixel*** image, int width, int height) {
     long data_size = extract_data_size(image, width, height);
     int extension_size = calculate_extension_size(image, width, height, data_size);
-    long stream_size = BYTES_RESERVED_FOR_KEY +SIZE_OF_LONG_IN_BYTES + data_size + extension_size;
+    long stream_size = SIZE_OF_LONG_IN_BYTES + data_size + extension_size;
 
     // array of bytes that will contain the stream
     unsigned char* stream = malloc(sizeof(*stream)*(stream_size));
@@ -177,9 +182,9 @@ static unsigned char* extract(pixel*** image, int width, int height) {
     unsigned char* bits = malloc(sizeof(unsigned char)*BYTE);
 
     // i is index for stream of bytes
-    int i=0, x = 0, y = height-1;
+    int i=0, x = 2, y = height-1;
     pixel* pixel;
-    int restart_point = 0;
+    int restart_point = x;
      // we will extract every embeded bit in the image
     for(int j = 0, shift=0; j < stream_size*BYTE ; j++) {
 
@@ -230,8 +235,8 @@ int run_lsbi_embed(information* info, const unsigned char* stream, long stream_s
     size_t stream_len = strlen(enc_stream);
     printf("About to embed\n");
     embed(enc_stream, stream_len , image, width, height);
-    printf("Finished embed\n");
-    return ERROR_SIZE;
+
+    return SUCCESS;
 }
 
 

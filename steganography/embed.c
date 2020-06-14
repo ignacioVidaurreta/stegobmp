@@ -30,7 +30,7 @@ static  void print_config(struct config* program_config) {
 
 int embed(struct config* program_config) {
 
-    print_config(program_config);
+    // print_config(program_config);
     
     // file processing. TODO: error handling
     char* filename = program_config->in_file;
