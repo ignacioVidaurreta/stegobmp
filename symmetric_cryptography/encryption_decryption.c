@@ -8,6 +8,7 @@
 #include "../include/cryptography.h"
 #include "../include/encryption_decryption.h"
 #include "../include/evp_encryption_decryption.h"
+#include "../include/logging.h"
 
 #define DES "des"
 #define AES128 "aes128"
@@ -72,6 +73,10 @@ cipher_info* run_cipher_process(char* a, char* m, char* password,
 
     // TODO: check if 2 is enough or too much
     unsigned char* output_stream = malloc(sizeof(unsigned char)*(2*stream_len));
+    if(output_stream == NULL) {
+        log_error_aux("Memory allocation failed on run_cipher_process (output_stream)");
+        return NULL;
+    }
 
     int output_len;
     if(operation == ENCRYPT) {
@@ -86,6 +91,12 @@ cipher_info* run_cipher_process(char* a, char* m, char* password,
     }
 
     cipher_info* info = malloc(sizeof(*info));
+    if(info == NULL) {
+        free(output_stream);
+        log_error_aux("Memory allocation failed on run_cipher_process (info)");
+        return NULL;
+    }
+
     info->output_len = output_len;
     info->output_stream = output_stream;
 
