@@ -2,13 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../include/steganography.h"
 #include "../include/bmp.h"
 #include "../include/print.h"
 #include "../include/lsbi.h"
-
-#define RGB_COLOR_SIZE 8
-#define BYTE 8
-#define DATA_SIZE 2
 
 // Why here? https://stackoverflow.com/questions/15681442/function-declared-static-but-never-defined
 static int embed_message(int i, pixel* pixel, int data_size, const unsigned char* data);
