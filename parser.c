@@ -17,6 +17,9 @@ struct config* init_config(struct config* config){
     config->error_log = fopen("log/stegobmp.log", "a");
     config->info_log  = fopen("log/stegobmp.log", "a");
 
+    config->enc_algorithm = EMPTY;
+    config->enc_mode = EMPTY;
+
     return config;
 }
 
@@ -254,4 +257,15 @@ int get_mode(int argc, char** argv){
 
     return -1;
 
+}
+
+void print_config(struct config* program_config) {
+    printf("\n* Program config values * \n\n");
+    printf("in_file %s\n",program_config->in_file);
+    printf("bmp_file %s\n",program_config->bmp_file);
+    printf("out_file %s\n",program_config->out_file);
+    printf("steg_algorithm %d\n",program_config->steg_algorithm);
+    printf("enc_algorithm %d\n",program_config->enc_algorithm);
+    printf("enc_mode %d\n",program_config->enc_mode);
+    printf("password %s\n\n",program_config->password);
 }
