@@ -78,10 +78,9 @@ int embed(struct config* program_config) {
 
 int run_embed_algorithm(struct config* program_config, information* info, const unsigned char* stream, long stream_size) {
     
-    int steg_algorithm = program_config->steg_algorithm;
     int steg_result = ERROR_SIZE;
     
-    switch(steg_algorithm) {
+    switch(program_config->steg_algorithm) {
         case LSB1:
             steg_result = run_lsb1_embed(info, (const unsigned char*) stream, stream_size);
             break;
