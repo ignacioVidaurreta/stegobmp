@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
+#include "../include/rc4.h"
 #include "../include/steganography.h"
 #include "../include/bmp.h"
 #include "../include/lsb1.h"
@@ -214,6 +216,7 @@ static unsigned char* extract(pixel*** image, int width, int height) {
 
 
 int run_lsbi_embed(information* info, const unsigned char* stream, long stream_size) {
+    printf("Starting embed\n");
     int width = info->header->bmp_width;
     int height = info->header->bmp_height;
     pixel*** image = info->matrix;
@@ -225,8 +228,9 @@ int run_lsbi_embed(information* info, const unsigned char* stream, long stream_s
     //process rc4
     const unsigned char* enc_stream = rc4(image, stream, true);
     size_t stream_len = strlen(enc_stream);
+    printf("About to embed\n");
     embed(enc_stream, stream_len , image, width, height);
-
+    printf("Finished embed\n");
     return ERROR_SIZE;
 }
 
