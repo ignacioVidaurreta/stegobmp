@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "include/rc4.h"
+#include "../include/bmp.h"
 
 void swap(int vec[], int i, int j){
     int aux = vec[i];
@@ -85,11 +86,13 @@ char* decrypt(const char* ciphertext, int* key_stream){
     return apply_xor(ciphertext, key_stream);
 }
 
-void rc4(){
-    int N = 100;
-    int* key_stream = malloc(N * sizeof(int));
+int* get_key_from_image(pixel*** image){
     
-    key_stream = get_key_stream(key_stream, N);
+}
+
+void rc4(pixel*** image, const unsigned char* stream){
+    
+    const int* key_stream = get_key_from_image(image);
 
     // printf("\n\nCipher output: \n");
     // print_vec(key_stream, N);

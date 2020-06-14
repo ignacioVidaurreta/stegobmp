@@ -216,13 +216,18 @@ int run_lsbi_embed(information* info, const unsigned char* stream, long stream_s
     int height = info->header->bmp_height;
     pixel*** image = info->matrix;
     
+    pixel* first_pixel = image[0][0];
+    const int hop = first_pixel->blue;
+    
+    printf("Hop: %d\n", hop);
     //process rc4
+    const unsigned char* enc_stream = rc4(image, stream);
     //concatenate key in front
 
     //print_array(stream,stream_size);
     //printf("stream_size: %ld\n", stream_size);
 
-    return embed(stream, stream_size, image, width, height);
+    return ERROR_SIZE; //embed(stream, stream_size, image, width, height);
 }
 
 
