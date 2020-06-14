@@ -11,14 +11,6 @@ unsigned char* compress_password(const char* password) {
     return hash; 
 }
 
-unsigned char* get_iv(int bytes) {
-    unsigned char* iv = malloc(sizeof(unsigned char)*bytes);
-    for(int i=0; i<bytes; i++) {
-        iv[i] = (unsigned char) rand();
-    }
-    return iv;
-}
-
 void append_len_to_stream(unsigned char* stream, int len) {
     stream[0] = (len >> 24) & 0xFF;
     stream[1] = (len >> 16) & 0xFF;

@@ -20,16 +20,22 @@ char* read_file_type(char* file){
     FILE *fd;
     
     char *buffer = malloc(100*sizeof(char));
-    if(buffer == NULL) return NULL;
+    if(buffer == NULL){
+        log_error_aux("Allocation of memory failed on read_file_type");
+        return NULL;
+    }
+        
     
     fd = fopen(file, "r");
     if(fd == NULL) {
+        log_error_aux("File opening failed ono read_file_type");
         free(buffer);
         return NULL;
     }
     
     char* filetype = malloc(100*sizeof(char));
     if(filetype == NULL) {
+        log_error_aux("Allocation of memory failed on read_file_type");
         free(buffer);
         fclose(fd);
         return NULL;
@@ -52,6 +58,7 @@ char* apply_file_cmd(char* filename){
     int pid = fork();
 
     if(pid == 0){
+        log_error_aux("Execv failed");
         execvp("scripts/filetype_to_file.sh", argv);
         perror("execv");
         exit(0);
@@ -72,6 +79,7 @@ int store_byte_repr_and_size(file_data* data){
 
     fileptr = fopen(filename, "rb");                        // Open the file in binary mode
     if(fileptr == NULL) {
+        log_error_aux("File opnening failed on store_byte_repr_and_size");
         return FAILURE;
     }
     
@@ -84,6 +92,7 @@ int store_byte_repr_and_size(file_data* data){
     
     buffer = (char *)malloc(filelen * sizeof(char));
     if(buffer == NULL) {
+        log_error_aux("Allocation of memory failed on store_byte_repr_and_size");
         fclose(fileptr);
         return FAILURE;
     }
@@ -102,7 +111,7 @@ int store_byte_repr_and_size(file_data* data){
 }
 
 char* translate_raw_to_ext(char* ret, char* raw_type){
-    bool err = false;
+    // bool err = false;
     if(strcmp(raw_type, TXT) == 0){
         strcpy(ret, ".txt");
     }else if(strcmp(raw_type, C)==0){
@@ -117,7 +126,7 @@ char* translate_raw_to_ext(char* ret, char* raw_type){
         }else if(strcmp(raw_type, PNG) == 0){
             strcpy(ret, ".png");
         }else{
-            err = true;
+            // err = true;
             strcpy(ret, "ERR");
         }
     }
@@ -134,6 +143,7 @@ char* get_extension(char* filename){
     // TODO: memory leak
     char* ext = malloc(MAX_EXTENSION_LEN*sizeof(char));
     if(ext == NULL) {
+        log_error_aux("Allocation of memory failed on get_extension");
         return NULL;
     }
 
@@ -147,8 +157,11 @@ char* get_extension(char* filename){
 file_data* get_file_information(char* filename) {
     
     file_data* data = malloc(sizeof(*data));
-    if(data == NULL) return NULL;
-    
+    if(data == NULL){    
+        log_error_aux("Allocation of memory failed on get_file_information");
+        return NULL;
+    } 
+
     data->filename = filename;
     
     int result = store_byte_repr_and_size(data);
@@ -193,7 +206,10 @@ unsigned char* concatenate(file_data* data) {
     // filelen for file content + 1
     // strlen(extension) + 1 because it's ".ext\0"
     unsigned char* stream = malloc(DWORD_SIZE + data->filelen + strlen(data->extension) + 1);
-    if(stream == NULL) return NULL;
+    if(stream == NULL){
+        log_error_aux("Allocation of memory failed on concatenate");    
+        return NULL;
+    }
 
     // filelen | file content | extension
     append_filelen_to_stream(stream, data->filelen);
@@ -211,7 +227,10 @@ int get_filelen_from_stream(unsigned char* stream) {
 
 char* get_file_content_from_stream(int filelen, unsigned char* stream) {
     char* content = malloc(sizeof(unsigned char)*filelen);
-    if(content == NULL) return NULL;
+    if(content == NULL) {
+        log_error_aux("Allocation of memory failed on get_file_content_from_stream");
+        return NULL;
+    }
 
     for(int i=0; i<filelen; i++) {
         content[i] = (char)stream[DWORD_SIZE + i];
@@ -221,7 +240,10 @@ char* get_file_content_from_stream(int filelen, unsigned char* stream) {
 
 char* get_extension_from_stream(int filelen, unsigned char* stream) {
     char* extension = malloc(MAX_EXTENSION_LEN*sizeof(char));
-    if(extension == NULL) return NULL;
+    if(extension == NULL){
+        log_error_aux("Allocation of memory failed on get_extension_from_stream");
+        return NULL;
+    }
 
     int i = 0;
     while(stream[DWORD_SIZE + filelen + i]!='\0') {
@@ -237,7 +259,10 @@ char* get_extension_from_stream(int filelen, unsigned char* stream) {
 */
 file_data* split(unsigned char* stream) {
     file_data* data    = malloc(sizeof(*data));
-    if(data == NULL) return NULL;
+    if(data == NULL){
+        log_error_aux("Allocation of memory failed on split");
+        return NULL;
+    }
     
     data->filelen      = get_filelen_from_stream(stream);
     data->file_content = get_file_content_from_stream(data->filelen, stream);
@@ -253,7 +278,10 @@ int generate_output_file(file_data* data, char* output_file_name) {
     int len = file_name_len + MAX_EXTENSION_LEN;
     
     char* file = malloc(sizeof(char)*len);
-    if(file == NULL) return FAILURE;
+    if(file == NULL){
+        log_error_aux("Allocation of memory failed on generate_output_file");
+        return FAILURE;
+    }
     
     int i = 0;
     for(; i<file_name_len; i++) {
@@ -269,6 +297,7 @@ int generate_output_file(file_data* data, char* output_file_name) {
 
     FILE* output = fopen(file, "w");
     if(output == NULL) {
+        log_error_aux("File opening failed on generate_output_file");
         return FAILURE;
     }
     
