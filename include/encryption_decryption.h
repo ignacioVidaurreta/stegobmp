@@ -4,6 +4,8 @@
 #define ENCRYPT 0
 #define DECRYPT 1
 
+#include "parser.h"
+
 typedef struct cipher_info{
     unsigned char* output_stream;
     int output_len;
@@ -26,20 +28,23 @@ cipher info structure with output_stream and output_len
 (notice that if we set append_len = TRUE, output_stream has output_len appended at the beginning)
 
 ***Example***
-We want to encrypt (with aes128 and cbc) the stream="hola que tal" and append len at the beginning. So we call
 
+We want to encrypt stream="hola que tal" with aes128, ecf mode and we want to append len at the beginning.
+stream="hola que tal";
+enc_alg a = 0;
+chain_mode m = 0;
 int stream_len = strlen(stream)+1;
-cipher_info* enc_info = run_cipher_process("aes128", "cbc", "pass", ENCRYPT, stream, stream_len, TRUE);
+cipher_info enc_info = run_cipher_process(a, m, "pass", ENCRYPT, stream, stream_len, TRUE);
 
-We get the cipherstream in the enc_info structure.
-Now we want to decrypt it.
+Now, we want to decrypt.
+int len = get_len_from_stream(enc_info->output_stream); // we need to include cryptography.h
+cipher_info dec_info = run_cipher_process(a, m, "pass", DECRYPT, enc_info->output_stream + 4, len, FALSE);
 
-int len = get_len_from_stream(enc_info->output_stream); // we need to include cryptography.h to use it
-cipher_info dec_info = run_cipher_process("aes128", "cbc", "pass", DECRYPT, enc_info->output_stream+4, len, FALSE); 
+printf("%s",dec_info->output_stream) == "hola que tal"
 
 */
 cipher_info* run_cipher_process(
-    char* a, char* m, char* password, int operation, unsigned char* stream, int stream_len, int append_len);
+    enc_alg a, chain_mode m, char* password, int operation, unsigned char* stream, int stream_len, int append_len);
 
 
 #endif /*   ENCRYPTION_DECRYPTION_H */
