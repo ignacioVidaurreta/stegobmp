@@ -34,20 +34,15 @@ int extract(struct config* program_config) {
     information* info;
     info = bmp_to_matrix(program_config->bmp_file);
 
-    printf("matrix ready to be extracted from\n");
-
     // validate encryption
     int is_encrypted = validate_encryption(program_config);
 
     // extract. TODO: error handling
     unsigned char* stream = run_extract_algorithm(program_config, info);
-    
-    printf("extraction accomplished\n");
 
     // split information after running lsb
     file_data*     split_data = split(stream);
     int result                = generate_output_file(split_data, program_config->out_file);
-    printf("result of output file: %d\n", result);
 
     free(stream);
     free_file_data(split_data);
