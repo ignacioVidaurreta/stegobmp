@@ -2,19 +2,13 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "../include/steganography.h"
 #include "../include/bmp.h"
 #include "../include/lsb1.h"
 #include "../include/print.h"
 #include "../include/base.h"
 #include "../include/logging.h"
 #include "../include/errors.h"
-
-#define BYTE 8
-#define COMPONENTS 3
-#define SIZE_OF_LONG_IN_BYTES 4
-#define SIZE_OF_LONG_IN_BITS (SIZE_OF_LONG_IN_BYTES*BYTE)
-#define BLOCK_FOR_EXTENSION_SIZE 15  // this is an estimate block to read extension
-
 
 // NOTE: stream_size != data_size
 // stream = data_size || data || extension
