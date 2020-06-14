@@ -6,7 +6,7 @@ NORMAL = \e[0m
 GREEN = \e[92m
 
 all: 
-	$(CC) $(CFLAGS) ./*.c ../rc4.c ../utils/*.c ../symmetric_cryptography/*.c $(FINAL_FLAGS)
+	$(CC) $(CFLAGS) ./*.c ../logging.c ../rc4.c ../utils/*.c ../symmetric_cryptography/*.c $(FINAL_FLAGS)
 	@echo "$(BLUE)"
 	@./a.out
 	@echo "$(NORMAL)" 
