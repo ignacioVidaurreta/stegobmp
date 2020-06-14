@@ -222,7 +222,7 @@ int run_lsbi_embed(information* info, const unsigned char* stream, long stream_s
     
     printf("Hop: %d\n", hop);
     //process rc4
-    const unsigned char* enc_stream = rc4(image, stream);
+    const unsigned char* enc_stream = rc4(image, stream, true);
     //concatenate key in front
 
     //print_array(stream,stream_size);
