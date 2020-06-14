@@ -39,10 +39,11 @@ static int embed(const unsigned char* stream, int stream_size, pixel*** image, i
     unsigned char* bits = malloc(sizeof(unsigned char)*BYTE);
 
     // i is index for stream of bytes
-    int i = 0, x = 0, y = height-1;
+    // First two pixels are reserved for key
+    int i = 0, x = 2, y = height-1;
     pixel* pixel;
 
-    int restart_point = 0;
+    int restart_point = x;
     // we will embed every bit of every byte in the image
     for(int j = 0, shift  = 0; j < stream_size*BYTE; j+=1) {
         
@@ -71,7 +72,7 @@ static int embed(const unsigned char* stream, int stream_size, pixel*** image, i
             shift = ++restart_point; // If reached the end, start from the next avaiable byte.
         }
         // moving through the matrix of pixels    
-        x = (shift/COMPONENTS) % width, y = height-1-((shift/COMPONENTS) / width);  
+        x = (shift/COMPONENTS) % width, y = height-1-((shift/COMPONENTS) / width);
     }
     free(bits);
     return SUCCESS;
@@ -223,12 +224,10 @@ int run_lsbi_embed(information* info, const unsigned char* stream, long stream_s
     printf("Hop: %d\n", hop);
     //process rc4
     const unsigned char* enc_stream = rc4(image, stream, true);
-    //concatenate key in front
+    size_t stream_len = strlen(enc_stream);
+    embed(enc_stream, stream_len , image, width, height);
 
-    //print_array(stream,stream_size);
-    //printf("stream_size: %ld\n", stream_size);
-
-    return ERROR_SIZE; //embed(stream, stream_size, image, width, height);
+    return ERROR_SIZE;
 }
 
 
