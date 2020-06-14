@@ -11,7 +11,7 @@
 #define LSBI 2
 
 
-typedef enum {AES128, AES192, AES256, DES } enc_alg;
+typedef enum {AES128, AES192, AES256, DES} enc_alg;
 
 typedef enum {ECB, CFB, OFB, CBC} chain_mode;
 

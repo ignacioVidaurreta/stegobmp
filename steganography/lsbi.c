@@ -2,11 +2,12 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "../include/steganography.h"
 #include "../include/bmp.h"
 #include "../include/lsb1.h"
 #include "../include/print.h"
 #include "../include/base.h"
-#include "../include/logging.h"
+#include "../include/logging.h" 
 #include "../include/errors.h"
 
 #define BYTE 8

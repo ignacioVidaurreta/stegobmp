@@ -5,6 +5,8 @@
 #include <openssl/ossl_typ.h>
 
 #include "../include/errors.h"
+#include "../include/cryptography.h"
+#include "../include/encryption_decryption.h"
 #include "../include/evp_encryption_decryption.h"
 
 #define DES "des"
@@ -27,6 +29,12 @@
 #define CFB_i 2
 #define OFB_i 3
 
+#define BLOCK_SIZE 8
+#define DWORD 4
+
+#define FALSE 0
+
+
 static unsigned char* iv = (unsigned char*)"abcdabcdabcdabcdabcdabcdabcdabcd";
 
 static cipher* ciphers[][4] = { \
@@ -36,8 +44,12 @@ static cipher* ciphers[][4] = { \
     {EVP_aes_256_cbc, EVP_aes_256_ecb, EVP_aes_256_cfb, EVP_aes_256_ofb}};
 
 
-/* Returns encrypted/decrypted stream depending on operation */
-unsigned char* run_cipher_process(char* a, char* m, char* password, int operation) {    
+/* Returns encrypted/decrypted stream depending on operation + len of corresponding stream */
+cipher_info* run_cipher_process(char* a, char* m, char* password,
+    int operation, unsigned char* stream, int stream_len, int append_len) {    
+
+    // printf("Starting cipher process\n");
+    
     int algorithm=-1, mode=-1;
 
     if(strcmp(DES, a) == 0)         algorithm = DES_i;
@@ -54,6 +66,28 @@ unsigned char* run_cipher_process(char* a, char* m, char* password, int operatio
     else 
         return NULL;
 
+    // printf("Chose algorithm %d and mode %d\n",algorithm, mode);
 
-    return NULL;
+    unsigned char* key = compress_password(password);
+
+    // TODO: check if 2 is enough or too much
+    unsigned char* output_stream = malloc(sizeof(unsigned char)*(2*stream_len));
+
+    int output_len;
+    if(operation == ENCRYPT) {
+        int offset = append_len == FALSE ? 0 : DWORD;
+        output_len = epv_encrypt(stream, stream_len, key, iv, output_stream + offset, ciphers[algorithm][mode]);
+        if(offset) {
+            append_len_to_stream(output_stream, output_len);
+        }
+    }
+    else if(operation == DECRYPT) {
+        output_len = epv_decrypt(stream, stream_len, key, iv, output_stream, ciphers[algorithm][mode]);
+    }
+
+    cipher_info* info = malloc(sizeof(*info));
+    info->output_len = output_len;
+    info->output_stream = output_stream;
+
+    return info;
 }

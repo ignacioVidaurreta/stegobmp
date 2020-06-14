@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 /* Returns a 160 bits compressed password. */
-unsigned char* compress_password(char* password);
+unsigned char* compress_password(const char* password);
 
 /* Appends a 4 byte number at the beginning of a stream. */
 void append_len_to_stream(unsigned char* stream, int len);
