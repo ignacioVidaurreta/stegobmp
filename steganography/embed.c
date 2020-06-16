@@ -48,7 +48,7 @@ int embed(struct config* program_config) {
     cipher_info* cipher_information;
     int do_encryption = FALSE;
     if(do_encryption = validate_encryption_intention(program_config))
-        cipher_information = run_cipher_process(/*program_config->enc_algorithm, program_config->enc_mode,*/"aes128", "cbc", program_config->password, ENCRYPT, stream, stream_size, TRUE);
+        cipher_information = run_cipher_process(/*program_config->enc_algorithm, program_config->enc_mode,*/0, 0, program_config->password, ENCRYPT, stream, stream_size, TRUE);
         
     // embed
     int steg_result = FAILURE;

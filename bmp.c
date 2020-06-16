@@ -3,6 +3,7 @@
 
 #include "include/bmp.h"
 #include "include/errors.h"
+#include "include/logging.h"
 
 #define HEADER_SIZE 54
 
@@ -30,12 +31,13 @@ information* bmp_to_matrix(const char* filename) {
     FILE* file;
     file = fopen(filename, "r");
     if(file == NULL) {
-        perror("Error opening file\n");
+        log_error_aux("File opening failed on bmp_to_matrix");
         return NULL;
     }
 
     bmp_header* header = malloc(sizeof(*header));
     if(header == NULL) {
+        log_error_aux("Memory allocation failed on bmp_t_matrix (header)");
         fclose(file);
         return NULL;
     }
@@ -47,6 +49,7 @@ information* bmp_to_matrix(const char* filename) {
 
     pixel*** matrix = malloc(sizeof(*matrix)*height);
     if(matrix == NULL) {
+        log_error_aux("Memory allocation failed on bmp_t_matrix (matrix)");
         fclose(file);
         free(header);
         return NULL;
@@ -65,19 +68,29 @@ information* bmp_to_matrix(const char* filename) {
         }
     }
     information* info = malloc(sizeof(*info));
+    if(info == NULL) {
+        free_header(header);
+        free_pixel_matrix(matrix, header->bmp_height, header->bmp_width);
+        fclose(file);
+        log_error_aux("Memory allocation failed on bmp_t_matrix (info)");
+        return NULL;
+    }
     info->matrix = matrix;
     info->header = header;
+    // TODO: deberiamos cerrar el archivo??? probar cuando corarmos todo
     return info;
 }
 
 /* file_name: must contain .bmp extension */
 int matrix_to_bmp(information* info, char* file_name) {
     FILE* bmp_file = fopen(file_name, "w");
-    if(bmp_file == NULL) {                                                  // Problems when opening the file...
+    if(bmp_file == NULL) {  
+        log_error_aux("File opening failed on matrix_to_bmp");              // Problems when opening the file...
         return FAILURE;
     }
     unsigned int result = fwrite(info->header, HEADER_SIZE, 1, bmp_file);   // Writes header into file
     if(result != 1) {                                                       // If it didn't write what it needed to write...
+        log_error_aux("fwrite failed on matrix_to_bmp");
         return FAILURE;
     }
     unsigned int height = info->header->bmp_height;
@@ -86,6 +99,7 @@ int matrix_to_bmp(information* info, char* file_name) {
         for(int j=0; j<width; j++) {
             result = fwrite(info->matrix[i][j],sizeof(pixel), 1,bmp_file);  // Writes every pixel into file
             if(result != 1) {                                               // If it didn't write what it needed to write...
+                log_error_aux("fwrite failed on matrix_to_bmp loop");
                 return FAILURE;
             }
         }
