@@ -10,7 +10,6 @@ all:
 	@echo "$(BLUE)"
 	@./a.out
 	@echo "$(NORMAL)" 
-	@$(MAKE) clean
 
 clean:
 	@rm -rf a.out

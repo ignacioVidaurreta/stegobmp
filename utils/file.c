@@ -43,7 +43,7 @@ char* read_file_type(char* file){
     
     // https://stackoverflow.com/questions/20108334/traverse-file-line-by-line-using-fscanf/20108623
     fscanf(fd, "%s %30[^\n]\n", buffer, filetype);
-    free(buffer);
+    // free(buffer);
     fclose(fd);
 
     return filetype;
@@ -58,8 +58,8 @@ char* apply_file_cmd(char* filename){
     int pid = fork();
 
     if(pid == 0){
+	execvp("scripts/filetype_to_file.sh", argv);
         log_error_aux("Execv failed");
-        execvp("scripts/filetype_to_file.sh", argv);
         perror("execv");
         exit(0);
     }else{

@@ -9,7 +9,7 @@
 void test_lsbi_decodes_correctly(CuTest *tc){
     
     const unsigned char* expected_plaintext = "We attack at midnight";
-    size_t len = strlen(expected_plaintext);
+    long len = strlen(expected_plaintext);
     information* info = bmp_to_matrix("images/testImage.bmp");
     embed_lsbi(expected_plaintext, len, info->matrix, info->header->bmp_width, info->header->bmp_height);
     CuAssertStrEquals(tc, expected_plaintext, extract_lsbi(info->matrix, info->header->bmp_width, info->header->bmp_height));

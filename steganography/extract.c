@@ -39,7 +39,10 @@ int extract(struct config* program_config) {
 
     // extract. TODO: error handling
     unsigned char* stream = run_extract_algorithm(program_config, info);
-
+    if(stream == NULL){
+        printf("oopsie");
+        return ERROR_SIZE;
+    }
     // split information after running lsb
     file_data*     split_data = split(stream);
     int result                = generate_output_file(split_data, program_config->out_file);
@@ -66,7 +69,9 @@ unsigned char* run_extract_algorithm(struct config* program_config, information*
         case LSB4:
             return run_lsb4_extract(info);
         case LSBI:
-            //return run_lsbi_extract(info);
+            return run_lsbi_extract(info);
             break;
+        default:
+            return NULL;
     }
 }
