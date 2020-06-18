@@ -21,20 +21,14 @@
 #define SIZE_OF_LONG_IN_BYTES 4
 #define SIZE_OF_LONG_IN_BITS (SIZE_OF_LONG_IN_BYTES*BYTE)
 #define BLOCK_FOR_EXTENSION_SIZE 15  // this is an estimate block to read extension
-#define BYTES_RESERVED_FOR_KEY 6
 
-// NOTE: stream_size != data_size
-// stream = encryption_key || data_size || data || extension
-// stream_size = BYTES_RESERVED_FOR_KEY + SIZE_OF_LONG_IN_BYTES + data_size + extension_size
-
-
-// embeds a stream of bytes in image. If the size of stream is too large, 
-// the function logs an error and returns
-int embed_lsbi(const unsigned char* stream, int stream_size, pixel*** image, int width, int height, int hop) {
-
-    // log error if stream_size it's too long to insert in image
-    // The longest that it will be able to fit is the number of
-    // elements in the matrix width*height*components is in bytes
+static int embed(const unsigned char* stream, int stream_size, pixel*** image, int width, int height, int hop) {
+    
+    /*
+     * Log error if stream_size is too long to insert in image.
+     * The longest that it will be able to fit is the number of
+     * elements in the matrix width*height*components is in bytes
+     */
     if((stream_size * BYTE) > (width * height * COMPONENTS)) {
         log_error_aux("Can't embed image: size exceeds available space");
         return ERROR_SIZE;
@@ -49,14 +43,12 @@ int embed_lsbi(const unsigned char* stream, int stream_size, pixel*** image, int
     pixel* pixel;
 
     int restart_point = x;
-    // we will embed every bit of every byte in the image
     for(int j = 0, shift  = 0; j < stream_size*BYTE; j+=1) {
         // update the bits array with next byte
         if(j % BYTE == 0) {
             uchar_to_byte(bits, stream[i++]);
         }
 
-       // Always grab the pixel (this could be improved in a future )
         pixel = image[y][x];                    
 
         // which component do i have to embed in
@@ -83,6 +75,7 @@ int embed_lsbi(const unsigned char* stream, int stream_size, pixel*** image, int
 }
 
 // extracts data_size which resides in first 4 bytes of embeded stream (size of long)
+// !!includes the key bits!!.
 long extract_data_size(pixel*** image, int width, int height, int hop, int* shift) {
     long size = 0;
     int x,y;
@@ -91,9 +84,8 @@ long extract_data_size(pixel*** image, int width, int height, int hop, int* shif
     y = height-1-((*shift/COMPONENTS) / width);
     pixel* pixel;
 
-    // we need to get first 32 bits after the key
+    // we need to get first 32 bits
     for(int j = 0; j <  SIZE_OF_LONG_IN_BITS ; j++) {
-        // get next pixel and update size, else only update size
         pixel = image[y][x];
        
         if( *shift % COMPONENTS == 0) {
@@ -108,7 +100,6 @@ long extract_data_size(pixel*** image, int width, int height, int hop, int* shif
 
         // TODO: This could be solved with modular arithmetics
         *shift += hop;
-        // printf("Curr Shift: %d\n", *shift);
         if (*shift >= width*height*COMPONENTS){
             *shift = ++restart_point; // If reached the end, start from the next avaiable byte.
         }
@@ -119,14 +110,15 @@ long extract_data_size(pixel*** image, int width, int height, int hop, int* shif
 }
 
 
-// calculates extension_size which resides after data_size and data in stream
-// the index for the stream after data_size and data is shift = (SIZE_OF_LONG_IN_BYTES + data_size)*BYTE
-// we read from shift (where '.' should be) until we find '\0'
-// and we convert every 8 bits to a byte to check so
+/*
+ * Calculates extension_size which resides after data_size and data in stream.
+ * We read from shift (where '.' should be) until we find '\0'
+ * and we convert every 8 bits to a byte to check so
+ */
 int calculate_extension_size(pixel*** image, int width, int height, long data_size, int hop, int shift) {
     int size = 0, i =0;
-    // Advance to the end of the data. We need to transform it to bits since we are doing bitwise operations
-    // here
+    // Advance to the end of the data. We need to transform it to bits since
+    // we are doing bitwise operations here
     shift+=hop*data_size*BYTE; 
     int x = (shift/COMPONENTS) % width, y = height-1-((shift/COMPONENTS) / width);
 
@@ -135,7 +127,6 @@ int calculate_extension_size(pixel*** image, int width, int height, long data_si
 
     pixel* pixel;
     for(int j = 0; ;j++) {
-        // printf("[EXT] Curr Shift: %d\n", shift);
         if(j % BYTE == 0 && j != 0) {
             data[i] = byte_to_uchar((const unsigned char*)bits);
             if(data[i++] == '\0'){
@@ -166,7 +157,7 @@ int calculate_extension_size(pixel*** image, int width, int height, long data_si
 
 
 // extracts a stream of bytes from an image
-unsigned char* extract_lsbi(pixel*** image, int width, int height, int hop) {
+static unsigned char* extract(pixel*** image, int width, int height, int hop) {
     int shift =0;
     long data_size = extract_data_size(image, width, height, hop, &shift);
     printf("data_size = %ld\n", data_size);
@@ -216,10 +207,7 @@ unsigned char* extract_lsbi(pixel*** image, int width, int height, int hop) {
     // update the stream array with its last byte
     stream[i++] = byte_to_uchar((const unsigned char*)bits);
 
-    free(bits);
-    printf("arr: \n");
-    print_array(stream,stream_size);
-    printf("stream_size: %ld\n", stream_size);      
+    free(bits);    
     return stream;
 }
 
@@ -233,21 +221,12 @@ int run_lsbi_embed(information* info, const unsigned char* stream, long stream_s
     pixel* first_pixel = image[0][0];
     const int hop = first_pixel->blue;
     
-    printf("Hop: %d\n", hop);
     //process rc4
-    // const unsigned char* enc_stream = rc4(image, stream, true);
+    const unsigned char* enc_stream = rc4(image, stream, true);
     // printf("%s \n", (char *)enc_stream);
-    // long stream_len = strlen(enc_stream);
-    printf("About to embed\n");
-
-    print_array(stream,stream_size);
-    printf("stream_size: %ld\n", stream_size);  
-
-    // print_array(enc_stream,stream_len);
-    // printf("stream_size: %ld\n", stream_len);  
-
+    long stream_len = strlen(enc_stream);  
     
-    embed_lsbi(stream, stream_size , image, width, height, hop);
+    embed(enc_stream, stream_len, image, width, height, hop);
 
     return SUCCESS;
 }
@@ -259,8 +238,7 @@ unsigned char* run_lsbi_extract(information* info) {
     pixel*** image = info->matrix;
     pixel* first_pixel = image[0][0];
     const int hop = first_pixel->blue;  
-    printf("Hop: %d\n", hop);
+
     //process rc4
-    // return rc4(image, extract_lsbi(image, width, height, hop), false);
-    return extract_lsbi(image, width, height, hop);
+    return rc4(image, extract(image, width, height, hop), false);
 }
