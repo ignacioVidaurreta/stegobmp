@@ -14,13 +14,7 @@
 #include "../include/errors.h"
 #include "../include/rc4.h"
 #include "../include/string.h"
-
-
-#define BYTE 8
-#define COMPONENTS 3
-#define SIZE_OF_LONG_IN_BYTES 4
-#define SIZE_OF_LONG_IN_BITS (SIZE_OF_LONG_IN_BYTES*BYTE)
-#define BLOCK_FOR_EXTENSION_SIZE 15  // this is an estimate block to read extension
+#include "../include/steganography.h"
 
 static int embed(const unsigned char* stream, int stream_size, pixel*** image, int width, int height, int hop) {
     
