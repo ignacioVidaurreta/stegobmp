@@ -30,7 +30,7 @@ static  void print_config(struct config* program_config) {
 
 int embed(struct config* program_config) {
 
-    print_config(program_config);
+    // print_config(program_config);
     
     // file processing. TODO: error handling
     char* filename = program_config->in_file;
@@ -88,7 +88,7 @@ int run_embed_algorithm(struct config* program_config, information* info, const 
             steg_result = run_lsb4_embed(info, (const unsigned char*) stream, stream_size);
             break;
         case LSBI:
-            //steg_result = run_lsbi_embed(info, (const unsigned char*) stream, stream_size);
+            steg_result = run_lsbi_embed(info, (const unsigned char*) stream, stream_size);
             break;
         default:
             steg_result = PARAM_ERROR;
