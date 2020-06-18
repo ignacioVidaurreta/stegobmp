@@ -37,6 +37,7 @@ test:
 clean:
 	@echo "$(GREEN)Cleaning up ...$(NORMAL)"
 	rm -rf $(EXEC_NAME) $(DEBUG_NAME)
+	$(MAKE) -C tests/ clean
 	@echo "$(GREEN)Done!$(NORMAL)"
 
 purge-logs:
