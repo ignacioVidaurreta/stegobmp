@@ -94,12 +94,8 @@ int validate_encryption_intention(struct config* program_config) {
 
     if(program_config->enc_algorithm == EMPTY) {
         program_config->enc_algorithm = AES128;
-        
-        if(program_config->enc_mode == EMPTY) {
-            program_config->enc_mode = CBC;
-        }
     }
-    else if (program_config->enc_mode == EMPTY) {
+    if (program_config->enc_mode == EMPTY) {
         program_config->enc_mode = CBC;
     }
 
