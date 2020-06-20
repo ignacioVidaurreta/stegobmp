@@ -3,21 +3,18 @@
 #include <string.h>
 #include "CuTest.h"
 #include "../include/rc4.h"
+#include "../include/lsbi.h"
 
 
 void test_rc4_decodes_correctly(CuTest *tc){
     
 
-    const char* expected_plaintext = "We attack at midnight";
-    int N = 100;
-    int* key_stream = malloc(N * sizeof(int));
-
-    key_stream = get_key_stream(key_stream, N);
+    const unsigned char* expected_plaintext = "We attack at midnight";
+    information* info = bmp_to_matrix("images/testImage.bmp");
+    int* key = malloc(6*sizeof(int));
     
-    char * ciphertext = encrypt(expected_plaintext, key_stream);
-
-    CuAssertStrEquals(tc, expected_plaintext, decrypt(ciphertext, key_stream));
-
+    char* ciphertext = rc4(info->matrix, expected_plaintext, true);
+    CuAssertStrEquals(tc, expected_plaintext, rc4(info->matrix, ciphertext, false));
 }
 
 
