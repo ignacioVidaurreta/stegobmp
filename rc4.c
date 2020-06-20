@@ -71,7 +71,7 @@ char* apply_xor(const char* initial_text, int* key_stream){
 
     char* result = malloc(len * sizeof(char));
     for(int i = 0; i<len; i++){
-        result[i] = initial_text[i] ^ key_stream[i];
+        result[i] = initial_text[i] ^ key_stream[i % 6];
     }
     result[len] = '\0';
     return result;
@@ -85,33 +85,34 @@ char* decrypt(const char* ciphertext, int* key_stream){
     return apply_xor(ciphertext, key_stream);
 }
 
-void rc4(){
-    int N = 100;
-    int* key_stream = malloc(N * sizeof(int));
+/*
+ * For this method we assume that the bmp image will have more tan
+ * 2 pixels per row which we feel is not a crazy assumption.
+ */
+const int* get_key_from_image(pixel*** image, int* key){
+    pixel* first_pixel = image[0][0];
+    pixel* second_pixel = image[0][1];
+
+    //order: Blue - Green - Red
+    key[0] = first_pixel->blue;
+    key[1] = first_pixel->green;
+    key[2] = first_pixel->red;
+    key[3] = second_pixel->blue;
+    key[4] = second_pixel->green;
+    key[5] = second_pixel->red;
+   
+
+    return key;
+}
+
+unsigned char* rc4(pixel*** image, const unsigned char* stream, bool should_encrypt){
     
-    key_stream = get_key_stream(key_stream, N);
-
-    // printf("\n\nCipher output: \n");
-    // print_vec(key_stream, N);
-    // printf("\n");
-
-    const char* text = "We attack at midnight";
-    size_t text_len = strlen(text);
-    if(N < text_len){
-        printf("Cannot encrypt with RC4 when key_stream is smaller than the text to apply the algorithm.\n");
-        free(key_stream);
-        return;
+    int* key = malloc(6 * sizeof(int));
+    get_key_from_image(image, key);
+    
+    if(should_encrypt){
+      return encrypt(stream, key);
     }
-
-    char* ciphertext = encrypt("We attack at midnight", key_stream);
-
-    printf("Ciphertext: %s\n", ciphertext);
-
-    char* plaintext = decrypt(ciphertext, key_stream);
-
-    printf("Plaintext: %s\n", plaintext);
-
-    free(plaintext);
-    free(key_stream);
-    free(ciphertext);
+   
+    return decrypt(stream, key);
 }
