@@ -3,8 +3,8 @@
 
 #define BYTE 8
 #define COMPONENTS 3
-#define SIZE_OF_LONG_IN_BYTES 4
-#define SIZE_OF_LONG_IN_BITS (SIZE_OF_LONG_IN_BYTES*BYTE)
+#define DWORD 4
+#define SIZE_OF_LONG_IN_BITS (DWORD*BYTE)
 #define BLOCK_FOR_EXTENSION_SIZE 15  // this is an estimate block to read extension
 #define COMPONENT_SIZE 8
 #define HALF_BYTE 4

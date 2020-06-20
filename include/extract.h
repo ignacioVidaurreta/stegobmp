@@ -3,6 +3,6 @@
 
 int extract(struct config* program_config);
 int validate_encryption(struct config* program_config);
-unsigned char* run_extract_algorithm(struct config* program_config, information* info);
+unsigned char* run_extract_algorithm(struct config* program_config, information* info, int is_encrypted);
 
 #endif

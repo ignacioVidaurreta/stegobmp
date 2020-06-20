@@ -11,7 +11,7 @@
 
 // NOTE: stream_size != data_size
 // stream = data_size || data || extension
-// stream_size = SIZE_OF_LONG_IN_BYTES + data_size + extension_size
+// stream_size = DWORD + data_size + extension_size
 
 
 // embeds a stream of bytes in image. If the size of stream is too large, 
@@ -123,12 +123,12 @@ static long extract_data_size(pixel*** image, int width, int height) {
 
 
 // calculates extension_size which resides after data_size and data in stream
-// the index for the stream after data_size and data is shift = (SIZE_OF_LONG_IN_BYTES + data_size)*BYTE
+// the index for the stream after data_size and data is shift = (DWORD + data_size)*BYTE
 // we read from shift (where '.' should be) until we find '\0'
 // and we convert every 8 bits to a byte to check so
 static int calculate_extension_size(pixel*** image, int width, int height, long data_size) {
     int size = 0, i =0;
-    long shift = (SIZE_OF_LONG_IN_BYTES + data_size)*BYTE;
+    long shift = (DWORD + data_size)*BYTE;
     int x = (shift/(COMPONENTS*HALF_BYTE)) % width, y = height-1-((shift/(COMPONENTS*HALF_BYTE)) / width);
 
     unsigned char* data = malloc(sizeof(*data)*(BLOCK_FOR_EXTENSION_SIZE));
@@ -173,14 +173,16 @@ static int calculate_extension_size(pixel*** image, int width, int height, long 
 
 
 // extracts a stream of bytes from an image
-static unsigned char* extract(pixel*** image, int width, int height) {
+static unsigned char* extract(pixel*** image, int width, int height, int is_encrypted) {
     long data_size = extract_data_size(image, width, height);
-    int extension_size = calculate_extension_size(image, width, height, data_size);
-    long stream_size = SIZE_OF_LONG_IN_BYTES + data_size + extension_size;
+    int extension_size = 0;
+    if(!is_encrypted)
+        extension_size = calculate_extension_size(image, width, height, data_size);
+    long stream_size = DWORD + data_size + extension_size;
 
-    printf("extention_size = %d\n", extension_size);
-    printf("data_size = %ld\n", data_size);
-    printf("stream_size = %ld\n", stream_size);
+    // printf("extention_size = %d\n", extension_size);
+    // printf("data_size = %ld\n", data_size);
+    // printf("stream_size = %ld\n", stream_size);
     
     // array of bytes that will contain the stream
     unsigned char* stream = malloc(sizeof(*stream)*(stream_size));
@@ -229,8 +231,8 @@ static unsigned char* extract(pixel*** image, int width, int height) {
     // update the stream array with its last byte
     stream[i++] = byte_to_uchar((const unsigned char*)bits);
 
-    printf("\n");
-    print_array(stream,stream_size);
+    //printf("\n");
+    //print_array(stream,stream_size);
 
     free(bits);            
     return stream;
@@ -242,17 +244,17 @@ int run_lsb4_embed(information* info, const unsigned char* stream, long stream_s
     int height = info->header->bmp_height;
     pixel*** image = info->matrix;
 
-    print_array(stream,stream_size);
-    printf("stream_size: %ld\n", stream_size);
+    //print_array(stream,stream_size);
+    //printf("stream_size: %ld\n", stream_size);
 
     return embed(stream, stream_size, image, width, height);
 }
 
 
-unsigned char* run_lsb4_extract(information* info) {
+unsigned char* run_lsb4_extract(information* info, int is_encrypted) {
     int width = info->header->bmp_width;
     int height = info->header->bmp_height;
     pixel*** image = info->matrix;
     
-    return extract(image, width, height);
+    return extract(image, width, height, is_encrypted);
 }

@@ -10,6 +10,8 @@
 #define LSB4 1
 #define LSBI 2
 
+#define EMPTY -1
+
 
 typedef enum {AES128, AES192, AES256, DES} enc_alg;
 
@@ -47,6 +49,6 @@ int set_chaining_mode(char* mode, struct config* config);
 int set_password(char* pass, struct config* config);
 int get_mode(int argc, char** argv);
 
-
+void print_config(struct config* program_config);
 
 #endif

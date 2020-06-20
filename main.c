@@ -12,6 +12,9 @@
 #include "include/file.h"
 #include "include/errors.h"
 #include "include/print.h"
+#include "include/embed.h"
+#include "include/extract.h"
+
 
 int main(int argc, char * argv[]){
 
