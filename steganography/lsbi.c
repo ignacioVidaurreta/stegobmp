@@ -4,17 +4,16 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "../include/rc4.h"
 #include "../include/steganography.h"
 #include "../include/bmp.h"
 #include "../include/lsb1.h"
 #include "../include/print.h"
 #include "../include/base.h"
-#include "../include/logging.h" 
+#include "../include/logging.h"
 #include "../include/errors.h"
 #include "../include/rc4.h"
-#include "../include/string.h"
-#include "../include/steganography.h"
+
+
 
 static int embed(const unsigned char* stream, int stream_size, pixel*** image, int width, int height, int hop) {
     
@@ -151,12 +150,14 @@ int calculate_extension_size(pixel*** image, int width, int height, long data_si
 
 
 // extracts a stream of bytes from an image
-static unsigned char* extract(pixel*** image, int width, int height, int hop) {
+static unsigned char* extract(pixel*** image, int width, int height, int hop, int is_encrypted) {
     int shift =0;
     long data_size = extract_data_size(image, width, height, hop, &shift);
     printf("data_size = %ld\n", data_size);
-    int extension_size = calculate_extension_size(image, width, height, data_size, hop, shift);
-    long stream_size = SIZE_OF_LONG_IN_BYTES + data_size + extension_size;
+    int extension_size = 0;
+    if(!is_encrypted)
+        extension_size = calculate_extension_size(image, width, height, data_size, hop, shift);
+    long stream_size = DWORD + data_size + extension_size;
 
     printf("extention_size = %d\n", extension_size);
     printf("data_size = %ld\n", data_size);
@@ -226,7 +227,7 @@ int run_lsbi_embed(information* info, const unsigned char* stream, long stream_s
 }
 
 
-unsigned char* run_lsbi_extract(information* info) {
+unsigned char* run_lsbi_extract(information* info, int is_encrypted) {
     int width = info->header->bmp_width;
     int height = info->header->bmp_height;
     pixel*** image = info->matrix;
@@ -234,5 +235,5 @@ unsigned char* run_lsbi_extract(information* info) {
     const int hop = first_pixel->blue;  
 
     //process rc4
-    return rc4(image, extract(image, width, height, hop), false);
+    return rc4(image, extract(image, width, height, hop, is_encrypted), false);
 }

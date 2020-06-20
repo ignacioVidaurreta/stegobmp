@@ -83,7 +83,7 @@ unsigned char* run_extract_algorithm(struct config* program_config, information*
         case LSB4:
             return run_lsb4_extract(info, is_encrypted);
         case LSBI:
-            return run_lsbi_extract(info);
+            return run_lsbi_extract(info, is_encrypted);
             break;
         default:
             return NULL;
