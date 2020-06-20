@@ -12,6 +12,7 @@
 #include "../include/logging.h"
 #include "../include/errors.h"
 #include "../include/rc4.h"
+#include "../include/string.h"
 
 
 
