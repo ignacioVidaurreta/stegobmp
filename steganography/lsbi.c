@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 #include "../include/steganography.h"
+#include "../include/cryptography.h"
 #include "../include/bmp.h"
 #include "../include/lsbi.h"
 #include "../include/print.h"
@@ -102,60 +103,11 @@ long extract_data_size(pixel*** image, int width, int height, int hop, int* shif
 }
 
 
-// /*
-//  * Calculates extension_size which resides after data_size and data in stream.
-//  * We read from shift (where '.' should be) until we find '\0'
-//  * and we convert every 8 bits to a byte to check so
-//  */
-// int calculate_extension_size(pixel*** image, int width, int height, long data_size, int hop, int shift) {
-//     int size = 0, i =0;
-//     // Advance to the end of the data. We need to transform it to bits since
-//     // we are doing bitwise operations here
-//     shift+=hop*data_size*BYTE; 
-//     int x = (shift/COMPONENTS) % width, y = ((shift/COMPONENTS) / width);
-
-//     unsigned char* data = malloc(sizeof(*data)*(BLOCK_FOR_EXTENSION_SIZE*100));
-//     unsigned char* bits = malloc(sizeof(unsigned char)*BYTE);
-
-//     pixel* pixel;
-//     for(int j = 0; ;j++) {
-//         if(j % BYTE == 0 && j != 0) {
-//             data[i] = byte_to_uchar((const unsigned char*)bits);
-//             if(data[i++] == '\0'){
-//                break; 
-//             }
-//         }
-//         pixel = image[y][x];
-//         if( shift % COMPONENTS == 0 ) {
-//             bits[j%BYTE] = (pixel->blue & 1) + CERO;
-//         }
-//         else if(shift % COMPONENTS == 1) {
-//             bits[j%BYTE] = (pixel->green & 1) + CERO;
-//         }
-//         else {
-//             bits[j%BYTE] = (pixel->red & 1)  + CERO;
-//         }
-//         shift+= hop;
-        
-//         x = (shift/COMPONENTS)  % width, y = ((shift/COMPONENTS) / width);
-//     }
-//     size = i;
-
-//     free(bits);
-//     free(data);
-
-//     return size;
-// }
-
-
 // extracts a stream of bytes from an image
 static unsigned char* extract(pixel*** image, int width, int height, int hop, int is_encrypted) {
-    int shift =0;
+    int shift = 0;
     long data_size = extract_data_size(image, width, height, hop, &shift);
     printf("data_size = %ld\n", data_size);
-    // int extension_size = 5;
-    // // if(!is_encrypted)
-    // //     extension_size = calculate_extension_size(image, width, height, data_size, hop, shift);
     long stream_size = DWORD + data_size;
 
     // printf("extention_size = %d\n", extension_size);
@@ -220,22 +172,9 @@ int run_lsbi_embed(information* info, const unsigned char* stream, long stream_s
     
     //process rc4
     const unsigned char* enc_stream = rc4(image, stream, stream_size, true);
-    
-    //generate stream to embed
-    long stream_len = strlen((char*)enc_stream);
-    // printf("stream_len %ld\n", stream_len);
-    // print_array(enc_stream, stream_len);
-    // printf("\n");
-    unsigned char* stream_to_embed = malloc(DWORD + stream_len);
-    long stream_to_embed_size = DWORD + stream_len;
-    memcpy(stream_to_embed+DWORD, enc_stream, stream_len);
-    append_len_to_stream(stream_to_embed, stream_len);
-    
-    printf("\n\nstream_to_embed\n");
-    print_array(stream_to_embed, stream_to_embed_size);
 
     //embed
-    embed(stream_to_embed, stream_to_embed_size, image, width, height, hop);
+    embed(enc_stream, stream_size, image, width, height, hop);
 
     return SUCCESS;
 }
@@ -250,9 +189,8 @@ unsigned char* run_lsbi_extract(information* info, int is_encrypted) {
 
     //extract
     unsigned char* extracted_stream = extract(image, width, height, hop, is_encrypted);
-   
+    
     //process rc4
-    long len = strlen((char*)extracted_stream);
-    print_array(extracted_stream, 46 + 4);
-    return rc4(image, (const unsigned char*) extracted_stream + DWORD, len - DWORD, false);
+    int len = 0;
+    return rc4(image, (const unsigned char*) extracted_stream, len, false);
 }
