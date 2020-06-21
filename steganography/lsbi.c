@@ -78,17 +78,27 @@ long extract_data_size(pixel*** image, int width, int height, int hop, int* shif
     y = ((*shift/COMPONENTS) / width);
     pixel* pixel;
 
+    unsigned char bits[8];
+    unsigned char size_arr[4];
+    int k = 0;
+
     // we need to get first 32 bits
     for(int j = 0; j <  SIZE_OF_LONG_IN_BITS ; j++) {
+        if(j % BYTE == 0 && j !=0){
+            uchar_to_byte(bits, size_arr[k++]);
+        }
         pixel = image[y][x];
         if( *shift % COMPONENTS == 0) {
-            size += (pixel->blue & 1) * pow(2,SIZE_OF_LONG_IN_BITS-j-1);
+            // size += (pixel->blue & 1) * pow(2,SIZE_OF_LONG_IN_BITS-j-1);
+            bits[j % BYTE] = (pixel->blue & 1);
         }
         else if(*shift % COMPONENTS == 1) {
-            size += (pixel->green & 1) * pow(2,SIZE_OF_LONG_IN_BITS-j-1);
+            // size += (pixel->green & 1) * pow(2,SIZE_OF_LONG_IN_BITS-j-1);
+            bits[j % BYTE] = (pixel->green & 1);
         }
         else {
-            size += (pixel->red & 1) * pow(2,SIZE_OF_LONG_IN_BITS-j-1);
+            // size += (pixel->red & 1) * pow(2,SIZE_OF_LONG_IN_BITS-j-1);
+            bits[j % BYTE] = (pixel->red & 1);
         }
 
         // TODO: This could be solved with modular arithmetics
@@ -99,7 +109,9 @@ long extract_data_size(pixel*** image, int width, int height, int hop, int* shif
         // moving through the matrix of pixels    
         x = (*shift/COMPONENTS) % width, y = ((*shift/COMPONENTS) / width);
     }
-    return size;
+    uchar_to_byte(bits, size_arr[k]);
+
+    return get_len_from_stream(rc4(image,size_arr, 4, false));
 }
 
 
@@ -108,6 +120,8 @@ static unsigned char* extract(pixel*** image, int width, int height, int hop, in
     int shift = 0;
     long data_size = extract_data_size(image, width, height, hop, &shift);
     printf("data_size = %ld\n", data_size);
+
+    abort();
     long stream_size = DWORD + data_size;
 
     // printf("extention_size = %d\n", extension_size);
@@ -191,6 +205,6 @@ unsigned char* run_lsbi_extract(information* info, int is_encrypted) {
     unsigned char* extracted_stream = extract(image, width, height, hop, is_encrypted);
     
     //process rc4
-    int len = 0;
+    int len = get_enc_length(image, extracted_stream);
     return rc4(image, (const unsigned char*) extracted_stream, len, false);
 }

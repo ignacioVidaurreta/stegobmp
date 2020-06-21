@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "include/rc4.h"
+#include "include/cryptography.h"
 
 void swap(int vec[], int i, int j){
     int aux = vec[i];
@@ -120,4 +121,12 @@ unsigned char* rc4(pixel*** image, const unsigned char* stream, long len, bool s
     }
    
     return decrypt(stream, len, key);
+}
+
+int get_enc_length(pixel*** image, const unsigned char* stream){
+    long len = 4;
+    int *key = malloc(6 * sizeof(int));
+    get_key_from_image(image, key);
+
+    return get_len_from_stream(decrypt(stream, 4, key));
 }

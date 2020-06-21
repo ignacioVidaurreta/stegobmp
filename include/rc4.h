@@ -13,5 +13,5 @@ unsigned char* decrypt(const unsigned char* ciphertext, long len, int* cipher);
 unsigned char* encrypt(const unsigned char* plaintext, long len, int* cipher);
 const int* get_key_from_image(pixel*** image, int* key);
 unsigned char* rc4(pixel*** image, const unsigned char* stream, long len, bool should_encrypt);
-
+int get_enc_length(pixel*** image, const unsigned char* stream);
 #endif
