@@ -69,49 +69,52 @@ static int embed(const unsigned char* stream, int stream_size, pixel*** image, i
 }
 
 // extracts data_size which resides in first 4 bytes of embeded stream (size of long)
-// !!includes the key bits!!.
+// !!includes the key bits!!
 long extract_data_size(pixel*** image, int width, int height, int hop, int* shift) {
-    long size = 0;
-    int x,y;
-    x = (*shift/COMPONENTS) % width;
-    int restart_point = x;
-    y = ((*shift/COMPONENTS) / width);
+    unsigned char bits[BYTE];
+    unsigned char size_arr[DWORD];
     pixel* pixel;
 
-    unsigned char bits[8];
-    unsigned char size_arr[4];
-    int k = 0;
+    int i=0, x = 2, y = 0;
+    int restart_point = x;
+     // we will extract every embeded bit in the image
+    for(int j = 0, shift=0; j < SIZE_OF_LONG_IN_BITS ; j++) {
+        // update the stream array with last filled byte
+        if(j % BYTE == 0 && j != 0) {
+            size_arr[i++] = byte_to_uchar((const unsigned char*)bits);
+        }
 
-    // we need to get first 32 bits
-    for(int j = 0; j <  SIZE_OF_LONG_IN_BITS ; j++) {
-        if(j % BYTE == 0 && j !=0){
-            uchar_to_byte(bits, size_arr[k++]);
-        }
         pixel = image[y][x];
-        if( *shift % COMPONENTS == 0) {
-            // size += (pixel->blue & 1) * pow(2,SIZE_OF_LONG_IN_BITS-j-1);
-            bits[j % BYTE] = (pixel->blue & 1);
+        
+        if( shift % COMPONENTS == 0) {
+            bits[j%BYTE] = (pixel->blue & 1) + CERO;
         }
-        else if(*shift % COMPONENTS == 1) {
-            // size += (pixel->green & 1) * pow(2,SIZE_OF_LONG_IN_BITS-j-1);
-            bits[j % BYTE] = (pixel->green & 1);
+        else if(shift % COMPONENTS == 1) {
+            bits[j%BYTE] = (pixel->green & 1)  + CERO;
         }
         else {
-            // size += (pixel->red & 1) * pow(2,SIZE_OF_LONG_IN_BITS-j-1);
-            bits[j % BYTE] = (pixel->red & 1);
+            bits[j%BYTE] = (pixel->red & 1)  + CERO;
         }
 
-        // TODO: This could be solved with modular arithmetics
-        *shift += hop;
-        if (*shift >= width*height*COMPONENTS){
-            *shift = ++restart_point; // If reached the end, start from the next avaiable byte.
+        shift += hop;
+        if (shift >= width*height*COMPONENTS){
+            shift = ++restart_point; // If reached the end, start from the next avaiable byte.
         }
         // moving through the matrix of pixels    
-        x = (*shift/COMPONENTS) % width, y = ((*shift/COMPONENTS) / width);
+        x = (shift/COMPONENTS) % width, y = ((shift/COMPONENTS) / width);  
     }
-    uchar_to_byte(bits, size_arr[k]);
+    // update the stream array with its last byte
+    size_arr[i++] = byte_to_uchar((const unsigned char*)bits);
+    
+    // printf("I got this\n");
+    // for(int i=0; i<4; i++) {
+    //     printf("%d ", size_arr[i]);
+    // }
+    // printf("\n");
+    
+    unsigned char * decrypted = rc4(image,size_arr, DWORD, false);
 
-    return get_len_from_stream(rc4(image,size_arr, 4, false));
+    return get_len_from_stream(decrypted);
 }
 
 
