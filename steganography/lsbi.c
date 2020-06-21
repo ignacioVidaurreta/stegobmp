@@ -80,7 +80,6 @@ long extract_data_size(pixel*** image, int width, int height, int hop, int* shif
     // we need to get first 32 bits
     for(int j = 0; j <  SIZE_OF_LONG_IN_BITS ; j++) {
         pixel = image[y][x];
-       
         if( *shift % COMPONENTS == 0) {
             size += (pixel->blue & 1) * pow(2,SIZE_OF_LONG_IN_BITS-j-1);
         }
@@ -217,9 +216,9 @@ int run_lsbi_embed(information* info, const unsigned char* stream, long stream_s
     const int hop = first_pixel->blue;
     
     //process rc4
-    const unsigned char* enc_stream = rc4(image, stream, true);
+    const unsigned char* enc_stream = rc4(image, stream, stream_size, true);
     // printf("%s \n", (char *)enc_stream);
-    long stream_len = strlen(enc_stream);  
+    long stream_len = strlen((char*)enc_stream);
     
     embed(enc_stream, stream_len, image, width, height, hop);
 
@@ -233,7 +232,8 @@ unsigned char* run_lsbi_extract(information* info, int is_encrypted) {
     pixel*** image = info->matrix;
     pixel* first_pixel = image[0][0];
     const int hop = first_pixel->blue;  
-
     //process rc4
-    return rc4(image, extract(image, width, height, hop, is_encrypted), false);
+    unsigned char* extracted_stream = extract(image, width, height, hop, is_encrypted);
+    long len = strlen((char*)extracted_stream);
+    return rc4(image, extracted_stream, len, false);
 }
