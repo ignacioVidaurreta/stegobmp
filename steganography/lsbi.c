@@ -6,13 +6,12 @@
 
 #include "../include/steganography.h"
 #include "../include/bmp.h"
-#include "../include/lsb1.h"
+#include "../include/lsbi.h"
 #include "../include/print.h"
 #include "../include/base.h"
 #include "../include/logging.h"
 #include "../include/errors.h"
 #include "../include/rc4.h"
-#include "../include/string.h"
 
 
 
@@ -33,7 +32,7 @@ static int embed(const unsigned char* stream, int stream_size, pixel*** image, i
 
     // i is index for stream of bytes
     // First two pixels are reserved for key
-    int i = 0, x = 2, y = height-1;
+    int i = 0, x = 2, y = 0;
     pixel* pixel;
 
     int restart_point = x;
@@ -62,7 +61,7 @@ static int embed(const unsigned char* stream, int stream_size, pixel*** image, i
             shift = ++restart_point; // If reached the end, start from the next avaiable byte.
         }
         // moving through the matrix of pixels    
-        x = (shift/COMPONENTS) % width, y = height-1-((shift/COMPONENTS) / width);
+        x = (shift/COMPONENTS) % width, y = ((shift/COMPONENTS) / width);
     }
     free(bits);
     return SUCCESS;
@@ -75,7 +74,7 @@ long extract_data_size(pixel*** image, int width, int height, int hop, int* shif
     int x,y;
     x = (*shift/COMPONENTS) % width;
     int restart_point = x;
-    y = height-1-((*shift/COMPONENTS) / width);
+    y = ((*shift/COMPONENTS) / width);
     pixel* pixel;
 
     // we need to get first 32 bits
@@ -98,7 +97,7 @@ long extract_data_size(pixel*** image, int width, int height, int hop, int* shif
             *shift = ++restart_point; // If reached the end, start from the next avaiable byte.
         }
         // moving through the matrix of pixels    
-        x = (*shift/COMPONENTS) % width, y = height-1-((*shift/COMPONENTS) / width);
+        x = (*shift/COMPONENTS) % width, y = ((*shift/COMPONENTS) / width);
     }
     return size;
 }
@@ -114,7 +113,7 @@ int calculate_extension_size(pixel*** image, int width, int height, long data_si
     // Advance to the end of the data. We need to transform it to bits since
     // we are doing bitwise operations here
     shift+=hop*data_size*BYTE; 
-    int x = (shift/COMPONENTS) % width, y = height-1-((shift/COMPONENTS) / width);
+    int x = (shift/COMPONENTS) % width, y = ((shift/COMPONENTS) / width);
 
     unsigned char* data = malloc(sizeof(*data)*(BLOCK_FOR_EXTENSION_SIZE*100));
     unsigned char* bits = malloc(sizeof(unsigned char)*BYTE);
@@ -139,7 +138,7 @@ int calculate_extension_size(pixel*** image, int width, int height, long data_si
         }
         shift+= hop;
         
-        x = (shift/COMPONENTS)  % width, y = height-1-((shift/COMPONENTS) / width);
+        x = (shift/COMPONENTS)  % width, y = ((shift/COMPONENTS) / width);
     }
     size = i;
 
@@ -155,9 +154,9 @@ static unsigned char* extract(pixel*** image, int width, int height, int hop, in
     int shift =0;
     long data_size = extract_data_size(image, width, height, hop, &shift);
     printf("data_size = %ld\n", data_size);
-    int extension_size = 0;
-    if(!is_encrypted)
-        extension_size = calculate_extension_size(image, width, height, data_size, hop, shift);
+    int extension_size = 5;
+    // if(!is_encrypted)
+    //     extension_size = calculate_extension_size(image, width, height, data_size, hop, shift);
     long stream_size = DWORD + data_size + extension_size;
 
     printf("extention_size = %d\n", extension_size);
@@ -171,7 +170,7 @@ static unsigned char* extract(pixel*** image, int width, int height, int hop, in
     unsigned char* bits = malloc(sizeof(unsigned char)*BYTE);
 
     // i is index for stream of bytes
-    int i=0, x = 2, y = height-1;
+    int i=0, x = 2, y = 0;
     pixel* pixel;
     int restart_point = x;
      // we will extract every embeded bit in the image
@@ -198,7 +197,7 @@ static unsigned char* extract(pixel*** image, int width, int height, int hop, in
             shift = ++restart_point; // If reached the end, start from the next avaiable byte.
         }
         // moving through the matrix of pixels    
-        x = (shift/COMPONENTS) % width, y = height-1-((shift/COMPONENTS) / width);  
+        x = (shift/COMPONENTS) % width, y = ((shift/COMPONENTS) / width);  
     }
     // update the stream array with its last byte
     stream[i++] = byte_to_uchar((const unsigned char*)bits);
