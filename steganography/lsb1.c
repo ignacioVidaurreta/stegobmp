@@ -30,7 +30,7 @@ static int embed(const unsigned char* stream, int stream_size, pixel*** image, i
     unsigned char* bits = malloc(sizeof(unsigned char)*BYTE);
 
     // i is index for stream of bytes
-    int i = 0, x = 0, y = height-1;
+    int i = 0, x = 0, y = 0;
     pixel* pixel;
 
     // we will embed every bit of every byte in the image
@@ -47,7 +47,7 @@ static int embed(const unsigned char* stream, int stream_size, pixel*** image, i
 
             // moving through the matrix of pixels
             if(x+1 == width) {
-                y--;
+                y++;
                 x=0;
             }
             else {
@@ -69,7 +69,7 @@ static int embed(const unsigned char* stream, int stream_size, pixel*** image, i
 // extracts data_size which resides in first 4 bytes of embeded stream (size of long)
 static long extract_data_size(pixel*** image, int width, int height) {
     long size = 0;
-    int x = 0, y = height-1;
+    int x = 0, y = 0;
     pixel* pixel;
 
     // we need to get first 32 bits
@@ -80,7 +80,7 @@ static long extract_data_size(pixel*** image, int width, int height) {
 
             // moving through the matrix of pixels
             if(x+1 == width) { 
-                y--;
+                y++;
                 x=0;
             }
             else {
@@ -106,7 +106,7 @@ static long extract_data_size(pixel*** image, int width, int height) {
 static int calculate_extension_size(pixel*** image, int width, int height, long data_size) {
     int size = 0, i =0;
     long shift = (DWORD + data_size)*BYTE;
-    int x = (shift/COMPONENTS) % width, y = height-1-((shift/COMPONENTS) / width);
+    int x = (shift/COMPONENTS) % width, y = ((shift/COMPONENTS) / width);
 
     unsigned char* data = malloc(sizeof(*data)*(BLOCK_FOR_EXTENSION_SIZE));
     unsigned char* bits = malloc(sizeof(unsigned char)*BYTE);
@@ -122,7 +122,7 @@ static int calculate_extension_size(pixel*** image, int width, int height, long 
         if( j % COMPONENTS == 0 || j == shift) {
             pixel = image[y][x];
             if(x+1 == width) { 
-                y--;
+                y++;
                 x=0;
             }
             else {
@@ -167,7 +167,7 @@ static unsigned char* extract(pixel*** image, int width, int height, int is_encr
     unsigned char* bits = malloc(sizeof(unsigned char)*BYTE);
 
     // i is index for stream of bytes
-    int i=0, x = 0, y = height-1;
+    int i=0, x = 0, y = 0;
     pixel* pixel;
 
      // we will extract every embeded bit in the image
@@ -184,7 +184,7 @@ static unsigned char* extract(pixel*** image, int width, int height, int is_encr
 
             // moving through the matrix of pixels
             if(x+1 == width) {
-                y--;
+                y++;
                 x=0;
             }
             else {
@@ -202,8 +202,8 @@ static unsigned char* extract(pixel*** image, int width, int height, int is_encr
     // update the stream array with its last byte
     stream[i++] = byte_to_uchar((const unsigned char*)bits);
 
-    //printf("\n");
-    //print_array(stream,stream_size);
+    // printf("\n");
+    // print_array(stream,stream_size);
 
     free(bits);            
     return stream;
