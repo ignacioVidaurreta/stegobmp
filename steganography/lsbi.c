@@ -124,7 +124,7 @@ static unsigned char* extract(pixel*** image, int width, int height, int hop, in
     long data_size = extract_data_size(image, width, height, hop, &shift);
     printf("data_size = %ld\n", data_size);
 
-    abort();
+    // abort();
     long stream_size = DWORD + data_size;
 
     // printf("extention_size = %d\n", extension_size);

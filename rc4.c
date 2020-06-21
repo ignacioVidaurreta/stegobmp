@@ -5,13 +5,13 @@
 #include "include/rc4.h"
 #include "include/cryptography.h"
 
-void swap(int vec[], int i, int j){
-    int aux = vec[i];
+void swap(unsigned char vec[], int i, int j){
+    unsigned char aux = vec[i];
     vec[i] = vec[j];
     vec[j] = aux;
 }
 
-int* get_shuffled_vector(int* base_stream, const int key[], size_t key_len){
+unsigned char* get_shuffled_vector(unsigned char* base_stream, const unsigned char key[], size_t key_len){
 
     int j = 0;
     for(int i = 0; i< 256; i++){
@@ -33,7 +33,7 @@ void print_vec(int vec[], int len){
     printf("]\n");
 }
 
-int* generate_result(int* base_stream, int N, int* key_stream){
+unsigned char* generate_result(unsigned char* base_stream, int N, unsigned char* key_stream){
     int i=0, j=0, k=0;
 
     while(k < N){
@@ -47,13 +47,13 @@ int* generate_result(int* base_stream, int N, int* key_stream){
     return key_stream;
 }
 
-int* get_key_stream(pixel*** image, int * key_stream, int N){
-    int* base_stream = malloc(256 * sizeof(int));
+unsigned char* get_key_stream(pixel*** image, unsigned char * key_stream, int N){
+    unsigned char* base_stream = malloc(256 * sizeof(int));
 
     for(int i = 0; i<256; i++){
         base_stream[i] = i;
     }
-    int* key = malloc(6 * sizeof(int));
+    unsigned char* key = malloc(6 * sizeof(unsigned char));
     get_key_from_image(image, key);
     
     base_stream = get_shuffled_vector(base_stream, key, 6);
@@ -66,7 +66,7 @@ int* get_key_stream(pixel*** image, int * key_stream, int N){
     return key_stream;
 }
 
-unsigned char* apply_xor(const unsigned char* initial_text, long len, int* key_stream){
+unsigned char* apply_xor(const unsigned char* initial_text, long len, unsigned char* key_stream){
 
     unsigned char* result = malloc(len * sizeof(char));
     for(int i = 0; i<len; i++){
@@ -78,11 +78,11 @@ unsigned char* apply_xor(const unsigned char* initial_text, long len, int* key_s
     return result;
 }
 
-unsigned char* encrypt(const unsigned char* plaintext, long len, int* key_stream){
+unsigned char* encrypt(const unsigned char* plaintext, long len, unsigned char* key_stream){
     return apply_xor(plaintext, len, key_stream);
 }
 
-unsigned char* decrypt(const unsigned char* ciphertext, long len, int* key_stream){
+unsigned char* decrypt(const unsigned char* ciphertext, long len, unsigned char* key_stream){
     return apply_xor(ciphertext, len, key_stream);
 }
 
@@ -90,7 +90,7 @@ unsigned char* decrypt(const unsigned char* ciphertext, long len, int* key_strea
  * For this method we assume that the bmp image will have more tan
  * 2 pixels per row which we feel is not a crazy assumption.
  */
-const int* get_key_from_image(pixel*** image, int* key){
+const unsigned char* get_key_from_image(pixel*** image, unsigned char* key){
     pixel* first_pixel = image[0][0];
     pixel* second_pixel = image[0][1];
 
@@ -111,7 +111,7 @@ unsigned char* rc4(pixel*** image, const unsigned char* stream, long len, bool s
     printf("\nin rc4 \n");
     print_array(stream, len);
 
-    int* key = get_key_stream(image, stream, len);
+    unsigned char* key = get_key_stream(image, stream, len);
     
     if(should_encrypt){
       return encrypt(stream, len, key);
