@@ -71,9 +71,11 @@ unsigned char* apply_xor(const unsigned char* initial_text, long len, int* key_s
     unsigned char* result = malloc(len * sizeof(char));
     for(int i = 0; i<len; i++){
         result[i] = initial_text[i] ^ key_stream[i % 6];
+        //printf("%d        i =  %d     restult[i] = %d\n", initial_text[i], i, result[i]);
     }
     result[len] = '\0';
-    printf("RESULT: %s\n\n", result);
+
+
     return result;
 }
 
@@ -107,6 +109,9 @@ const int* get_key_from_image(pixel*** image, int* key){
 
 unsigned char* rc4(pixel*** image, const unsigned char* stream, long len, bool should_encrypt){
     
+    printf("\nin rc4 \n");
+    print_array(stream, len);
+
     int* key = malloc(6 * sizeof(int));
     get_key_from_image(image, key);
     
