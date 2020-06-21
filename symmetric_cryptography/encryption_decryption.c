@@ -80,3 +80,9 @@ cipher_info* run_cipher_process(enc_alg algorithm, chain_mode mode, char* passwo
 
     return info;
 }
+
+void free_cipher_info(cipher_info* cipher) {
+    if(cipher == NULL) return;
+    free(cipher->output_stream);
+    free(cipher);
+}

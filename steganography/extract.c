@@ -32,10 +32,11 @@ int extract(struct config* program_config) {
     if(stream == NULL)
         return ERROR_EXTRACT;
     
+    cipher_info* dec_info = NULL;
     // decrypt if necessary
     if (is_encrypted) {
         int len = get_len_from_stream(stream);
-        cipher_info* dec_info = run_cipher_process(program_config->enc_algorithm, program_config->enc_mode, program_config->password, DECRYPT, stream + DWORD, len, FALSE);
+        dec_info = run_cipher_process(program_config->enc_algorithm, program_config->enc_mode, program_config->password, DECRYPT, stream + DWORD, len, FALSE);
         if(dec_info == NULL)
             return ERROR_DECRYPTION;
         stream = dec_info->output_stream;
@@ -53,6 +54,7 @@ int extract(struct config* program_config) {
     free_file_data(split_data);
     free_config(program_config);
     free_information(info);
+    free_cipher_info(dec_info);
 
     return SUCCESS;
 }

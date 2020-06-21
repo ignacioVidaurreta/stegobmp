@@ -29,7 +29,7 @@ int embed(struct config* program_config) {
     long stream_size = DWORD + data->filelen + strlen(data->extension) + 1;
 
     // encryption. TODO: error handling
-    cipher_info* enc_info;
+    cipher_info* enc_info = NULL;
     int do_encryption = validate_encryption_intention(program_config);
     if(do_encryption)
         enc_info = run_cipher_process(program_config->enc_algorithm, program_config->enc_mode, program_config->password, ENCRYPT, stream, stream_size, TRUE);
@@ -55,6 +55,7 @@ int embed(struct config* program_config) {
     free_file_data(data);
     free_config(program_config);
     free_information(info);
+    free_cipher_info(enc_info);
 
     return SUCCESS;
 }

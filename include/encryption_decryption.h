@@ -46,5 +46,6 @@ printf("%s",dec_info->output_stream) == "hola que tal"
 cipher_info* run_cipher_process(
     enc_alg a, chain_mode m, char* password, int operation, unsigned char* stream, int stream_len, int append_len);
 
+void free_cipher_info(cipher_info* cipher);
 
 #endif /*   ENCRYPTION_DECRYPTION_H */
