@@ -66,8 +66,7 @@ int* get_key_stream(int * key_stream, int N){
     return key_stream;
 }
 
-unsigned char* apply_xor(const unsigned char* initial_text, int* key_stream){
-    long len = strlen((char*)initial_text);
+unsigned char* apply_xor(const unsigned char* initial_text, long len, int* key_stream){
 
     unsigned char* result = malloc(len * sizeof(char));
     for(int i = 0; i<len; i++){
@@ -78,12 +77,12 @@ unsigned char* apply_xor(const unsigned char* initial_text, int* key_stream){
     return result;
 }
 
-unsigned char* encrypt(const unsigned char* plaintext, int* key_stream){
-    return apply_xor(plaintext, key_stream);
+unsigned char* encrypt(const unsigned char* plaintext, long len, int* key_stream){
+    return apply_xor(plaintext, len, key_stream);
 }
 
-unsigned char* decrypt(const unsigned char* ciphertext, int* key_stream){
-    return apply_xor(ciphertext, key_stream);
+unsigned char* decrypt(const unsigned char* ciphertext, long len, int* key_stream){
+    return apply_xor(ciphertext, len, key_stream);
 }
 
 /*
@@ -106,14 +105,14 @@ const int* get_key_from_image(pixel*** image, int* key){
     return key;
 }
 
-unsigned char* rc4(pixel*** image, const unsigned char* stream, bool should_encrypt){
+unsigned char* rc4(pixel*** image, const unsigned char* stream, long len, bool should_encrypt){
     
     int* key = malloc(6 * sizeof(int));
     get_key_from_image(image, key);
     
     if(should_encrypt){
-      return encrypt(stream, key);
+      return encrypt(stream, len, key);
     }
    
-    return decrypt(stream, key);
+    return decrypt(stream, len, key);
 }
