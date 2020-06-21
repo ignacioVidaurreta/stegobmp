@@ -66,22 +66,23 @@ int* get_key_stream(int * key_stream, int N){
     return key_stream;
 }
 
-char* apply_xor(const char* initial_text, int* key_stream){
-    size_t len = strlen(initial_text);
+unsigned char* apply_xor(const unsigned char* initial_text, int* key_stream){
+    long len = strlen((char*)initial_text);
 
-    char* result = malloc(len * sizeof(char));
+    unsigned char* result = malloc(len * sizeof(char));
     for(int i = 0; i<len; i++){
         result[i] = initial_text[i] ^ key_stream[i % 6];
     }
     result[len] = '\0';
+    printf("RESULT: %s\n\n", result);
     return result;
 }
 
-char* encrypt(const char* plaintext, int* key_stream){
+unsigned char* encrypt(const unsigned char* plaintext, int* key_stream){
     return apply_xor(plaintext, key_stream);
 }
 
-char* decrypt(const char* ciphertext, int* key_stream){
+unsigned char* decrypt(const unsigned char* ciphertext, int* key_stream){
     return apply_xor(ciphertext, key_stream);
 }
 
