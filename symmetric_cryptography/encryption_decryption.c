@@ -11,33 +11,10 @@
 #include "../include/logging.h"
 #include "../include/parser.h"
 
-#define DES "des"
-#define AES128 "aes128"
-#define AES192 "aes192"
-#define AES256 "aes256"
-
-#define CBC "cbc"
-#define ECB "ecb"
-#define CFB "cfb"
-#define OFB "ofb"
-
-#define DES_i 0
-#define AES128_i 1
-#define AES192_i 2
-#define AES256_i 3
-
-#define CBC_i 0
-#define ECB_i 1
-#define CFB_i 2
-#define OFB_i 3
-
 #define BLOCK_SIZE 8
 #define DWORD 4
 
 #define FALSE 0
-
-
-static unsigned char* iv = (unsigned char*)"abcdabcdabcdabcdabcdabcdabcdabcd";
 
 static cipher* ciphers[][4] = { \
     {EVP_aes_128_ecb, EVP_aes_128_cfb, EVP_aes_128_ofb, EVP_aes_128_cbc},
@@ -54,7 +31,21 @@ cipher_info* run_cipher_process(enc_alg algorithm, chain_mode mode, char* passwo
 
     // printf("Chose algorithm %d and mode %d\n",algorithm, mode);
 
-    unsigned char* key = compress_password(password);
+    const EVP_CIPHER *cipher;
+    cipher = ciphers[algorithm][mode]();
+    unsigned char key[EVP_CIPHER_key_length(cipher)];
+    unsigned char iv[EVP_CIPHER_iv_length(cipher)];
+
+    const EVP_MD *dgst = NULL;
+    const unsigned char *salt = NULL;
+
+    dgst = EVP_sha256();
+
+    // printf("Parameters set\n");
+
+    EVP_BytesToKey(cipher, dgst, salt, (unsigned char*)password, strlen(password),1, key, iv);
+
+    // printf("Finished to get IV and key\n");
 
     // TODO: check if 2 is enough or too much
     unsigned char* output_stream = malloc(sizeof(unsigned char)*(2*stream_len));
@@ -84,6 +75,8 @@ cipher_info* run_cipher_process(enc_alg algorithm, chain_mode mode, char* passwo
 
     info->output_len = output_len;
     info->output_stream = output_stream;
+
+    // printf("Finishing cipher process\n");
 
     return info;
 }
