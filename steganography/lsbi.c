@@ -208,6 +208,6 @@ unsigned char* run_lsbi_extract(information* info, int is_encrypted) {
     unsigned char* extracted_stream = extract(image, width, height, hop, is_encrypted);
     
     //process rc4
-    int len = get_enc_length(image, extracted_stream);
+    int len = rc4(image, extracted_stream, 4, false);
     return rc4(image, (const unsigned char*) extracted_stream, len, false);
 }

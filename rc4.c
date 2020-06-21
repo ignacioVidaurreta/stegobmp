@@ -47,17 +47,16 @@ int* generate_result(int* base_stream, int N, int* key_stream){
     return key_stream;
 }
 
-int* get_key_stream(int * key_stream, int N){
+int* get_key_stream(pixel*** image, int * key_stream, int N){
     int* base_stream = malloc(256 * sizeof(int));
 
     for(int i = 0; i<256; i++){
         base_stream[i] = i;
     }
-
-    const int secret_key[] = {2, 5, 2, 1, 9, 5};
+    int* key = malloc(6 * sizeof(int));
+    get_key_from_image(image, key);
     
-    size_t key_len = sizeof(secret_key)/sizeof(secret_key[0]);
-    base_stream = get_shuffled_vector(base_stream, secret_key, key_len);
+    base_stream = get_shuffled_vector(base_stream, key, 6);
     // printf("Initial shuffled vector: \n");
     // print_vec(stream, 256);
 
@@ -74,7 +73,6 @@ unsigned char* apply_xor(const unsigned char* initial_text, long len, int* key_s
         result[i] = initial_text[i] ^ key_stream[i % 6];
         //printf("%d        i =  %d     restult[i] = %d\n", initial_text[i], i, result[i]);
     }
-    result[len] = '\0';
 
 
     return result;
@@ -113,20 +111,11 @@ unsigned char* rc4(pixel*** image, const unsigned char* stream, long len, bool s
     printf("\nin rc4 \n");
     print_array(stream, len);
 
-    int* key = malloc(6 * sizeof(int));
-    get_key_from_image(image, key);
+    int* key = get_key_stream(image, stream, len);
     
     if(should_encrypt){
       return encrypt(stream, len, key);
     }
    
     return decrypt(stream, len, key);
-}
-
-int get_enc_length(pixel*** image, const unsigned char* stream){
-    long len = 4;
-    int *key = malloc(6 * sizeof(int));
-    get_key_from_image(image, key);
-
-    return get_len_from_stream(decrypt(stream, 4, key));
 }
