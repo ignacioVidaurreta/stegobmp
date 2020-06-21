@@ -33,19 +33,19 @@ void print_vec(int vec[], int len){
     printf("]\n");
 }
 
-unsigned char* generate_result(unsigned char* base_stream, int N, unsigned char* key_stream){
-    int i=0, j=0, k=0;
+// unsigned char* generate_result(unsigned char* base_stream, int N, unsigned char* key_stream){
+//     int i=0, j=0, k=0;
 
-    while(k < N){
-        i = (i+1) % 256;
-        j = (j+ base_stream[i])% 256;
-        swap(base_stream, i, j);
+//     while(k < N){
+//         i = (i+1) % 256;
+//         j = (j+ base_stream[i])% 256;
+//         swap(base_stream, i, j);
         
-        key_stream[k++]= base_stream[(base_stream[i] + base_stream[j])% 256];
-    }
+//         key_stream[k++]= base_stream[(base_stream[i] + base_stream[j])% 256];
+//     }
 
-    return key_stream;
-}
+//     return key_stream;
+// }
 
 unsigned char* get_key_stream(pixel*** image, unsigned char * key_stream, int N){
     unsigned char* base_stream = malloc(256 * sizeof(int));
@@ -60,20 +60,22 @@ unsigned char* get_key_stream(pixel*** image, unsigned char * key_stream, int N)
     // printf("Initial shuffled vector: \n");
     // print_vec(stream, 256);
 
-    key_stream = generate_result(base_stream, N, key_stream);
-    free(base_stream);
-
-    return key_stream;
+    return base_stream;
 }
 
 unsigned char* apply_xor(const unsigned char* initial_text, long len, unsigned char* key_stream){
 
+    int i=0, j=0, k=0;
     unsigned char* result = malloc(len * sizeof(char));
-    for(int i = 0; i<len; i++){
-        result[i] = initial_text[i] ^ key_stream[i % 6];
-        //printf("%d        i =  %d     restult[i] = %d\n", initial_text[i], i, result[i]);
+    while(k < len){
+        i = (i+1) % 256;
+        j = (j+ key_stream[i])% 256;
+        swap(key_stream, i, j);
+        
+        int rand = key_stream[(key_stream[i] + key_stream[j])% 256];
+        result[k] = initial_text[k] ^ rand;
+        k++;
     }
-
 
     return result;
 }
@@ -109,13 +111,12 @@ const unsigned char* get_key_from_image(pixel*** image, unsigned char* key){
 unsigned char* rc4(pixel*** image, const unsigned char* stream, long len, bool should_encrypt){
     
     printf("\nin rc4 \n");
-    print_array(stream, len);
 
-    unsigned char* key = get_key_stream(image, stream, len);
+    unsigned char* key_stream = get_key_stream(image, stream, len);
     
     if(should_encrypt){
-      return encrypt(stream, len, key);
+      return encrypt(stream, len, key_stream);
     }
    
-    return decrypt(stream, len, key);
+    return decrypt(stream, len, key_stream);
 }
