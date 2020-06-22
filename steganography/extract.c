@@ -23,6 +23,8 @@ int extract(struct config* program_config) {
     //bmp processing
     information* info;
     info = bmp_to_matrix(program_config->bmp_file);
+    if(info == NULL)
+        return ERROR_BMP_TO_MATRIX;
     
     // validate encryption
     int is_encrypted = validate_encryption(program_config);
@@ -43,9 +45,9 @@ int extract(struct config* program_config) {
 
     // split information after running lsb
     file_data* split_data = split(stream);
-    int result = generate_output_file(split_data, program_config->out_file);
     if(split_data == NULL)
         return ERROR_SPLIT;
+    int result = generate_output_file(split_data, program_config->out_file);
     if(result != SUCCESS)
         return result;
 

@@ -28,6 +28,10 @@ static int embed(const unsigned char* stream, int stream_size, pixel*** image, i
 
     // array of bits that will be reused to calculate each byte to embed in bits
     unsigned char* bits = malloc(sizeof(unsigned char)*BYTE);
+    if(bits == NULL){
+        log_error_aux("Allocation of memory failed on lsb1 embed");
+        return ERROR_MEMORY_ALLOCATION;
+    }
 
     // i is index for stream of bytes
     int i = 0, x = 0, y = 0;
@@ -109,7 +113,16 @@ static int calculate_extension_size(pixel*** image, int width, int height, long 
     int x = (shift/COMPONENTS) % width, y = ((shift/COMPONENTS) / width);
 
     unsigned char* data = malloc(sizeof(*data)*(BLOCK_FOR_EXTENSION_SIZE));
+    if(data == NULL){
+        log_error_aux("Allocation of memory failed on lsb1 calculating extension size");
+        return ERROR_MEMORY_ALLOCATION;
+    }
     unsigned char* bits = malloc(sizeof(unsigned char)*BYTE);
+    if(bits == NULL){
+        log_error_aux("Allocation of memory failed on lsb1 calculating extension size");
+        free(bits);
+        return ERROR_MEMORY_ALLOCATION;
+    }
 
     pixel* pixel;
     for(int j = shift; ; j++) {
@@ -152,19 +165,27 @@ static int calculate_extension_size(pixel*** image, int width, int height, long 
 static unsigned char* extract(pixel*** image, int width, int height, int is_encrypted) {
     long data_size = extract_data_size(image, width, height);
     int extension_size = 0;
-    if(!is_encrypted)
+    if(!is_encrypted) {
         extension_size = calculate_extension_size(image, width, height, data_size);
+        if(extension_size == ERROR_MEMORY_ALLOCATION)
+            return NULL;
+    }
     long stream_size = DWORD + data_size + extension_size;
-
-    // printf("extention_size = %d\n", extension_size);
-    // printf("data_size = %ld\n", data_size);
-    // printf("stream_size = %ld\n", stream_size);
     
     // array of bytes that will contain the stream
     unsigned char* stream = malloc(sizeof(*stream)*(stream_size));
+    if(stream == NULL){
+        log_error_aux("Allocation of memory failed on lsb1 extract");
+        return NULL;
+    }
     
     // array of bits that will be reused to extract bits and calculate each byte
     unsigned char* bits = malloc(sizeof(unsigned char)*BYTE);
+    if(bits == NULL){
+        log_error_aux("Allocation of memory failed on lsb1 extract");
+        free(stream);
+        return NULL;
+    }
 
     // i is index for stream of bytes
     int i=0, x = 0, y = 0;
@@ -202,9 +223,6 @@ static unsigned char* extract(pixel*** image, int width, int height, int is_encr
     // update the stream array with its last byte
     stream[i++] = byte_to_uchar((const unsigned char*)bits);
 
-    // printf("\n");
-    // print_array(stream,stream_size);
-
     free(bits);            
     return stream;
 }
@@ -214,9 +232,6 @@ int run_lsb1_embed(information* info, const unsigned char* stream, long stream_s
     int width = info->header->bmp_width;
     int height = info->header->bmp_height;
     pixel*** image = info->matrix;
-
-    //print_array(stream,stream_size);
-    //printf("stream_size: %ld\n", stream_size);
 
     return embed(stream, stream_size, image, width, height);
 }

@@ -24,6 +24,8 @@ int embed(struct config* program_config) {
     // bmp processing. TODO: error handling
     information* info;
     info = bmp_to_matrix(program_config->bmp_file);
+    if(info == NULL)
+        return ERROR_BMP_TO_MATRIX;
     
     // stream size
     long stream_size = DWORD + data->filelen + strlen(data->extension) + 1;
@@ -31,8 +33,11 @@ int embed(struct config* program_config) {
     // encryption. TODO: error handling
     cipher_info* enc_info;
     int do_encryption = validate_encryption_intention(program_config);
-    if(do_encryption)
+    if(do_encryption) {
         enc_info = run_cipher_process(program_config->enc_algorithm, program_config->enc_mode, program_config->password, ENCRYPT, stream, stream_size, TRUE);
+        if(enc_info == NULL)
+            return ERROR_ENCRYPTION;
+    }
  
     // embed
     int steg_result = FAILURE;
