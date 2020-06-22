@@ -112,7 +112,7 @@ long extract_data_size(pixel*** image, int width, int height, int hop, int* shif
     // }
     // printf("\n");
     
-    unsigned char * decrypted = rc4(image,size_arr, DWORD, false);
+    unsigned char * decrypted = RC4(image,size_arr, DWORD);
 
     return get_len_from_stream(decrypted);
 }
@@ -231,7 +231,7 @@ int run_lsbi_embed(information* info, const unsigned char* stream, long stream_s
     const int hop = first_pixel->blue;
     
     //process rc4
-    const unsigned char* enc_stream = rc4(image, stream, stream_size, true);
+    const unsigned char* enc_stream = RC4(image, stream, stream_size);
 
     print_array(enc_stream,stream_size);
 
@@ -254,5 +254,5 @@ unsigned char* run_lsbi_extract(information* info, int is_encrypted) {
     
     //process rc4
     long data_size = extract_data_size(image, width, height, hop, 0);
-    return rc4(image, (const unsigned char*) extracted_stream, DWORD + data_size + EXTENSION, false);
+    return RC4(image, (const unsigned char*) extracted_stream, DWORD + data_size + EXTENSION);
 }
