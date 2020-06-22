@@ -67,13 +67,13 @@ int apply(unsigned char *encoding_stream, char *stream, int len, unsigned char* 
     return 0;
 }
 
-unsigned char* RC4(pixel*** image, unsigned char* stream, long len) {
+unsigned char* RC4(pixel*** image, const unsigned char* stream, long len) {
 
     unsigned char encoding_stream[N];
     unsigned char* response = malloc(len * sizeof(unsigned char));
     create_encoding_stream(image, encoding_stream);
 
-    apply(encoding_stream, stream, len, response);
+    apply(encoding_stream, (char *)stream, len, response);
 
     return response;
 }

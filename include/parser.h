@@ -36,7 +36,7 @@ struct config{
     FILE* info_log;
 };
 
-struct config* init_config(struct config* config);
+struct config* init_config();
 void free_config(struct config* config);
 
 struct config * parse_arguments(int argc, char* argv[]);

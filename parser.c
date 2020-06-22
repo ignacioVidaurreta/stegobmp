@@ -7,8 +7,8 @@
 
 #define MAX_LEN 100
 
-struct config* init_config(struct config* config){
-    config = malloc(sizeof(struct config));
+struct config* init_config(){
+    struct config* config = malloc(sizeof(struct config));
 
     config->in_file   = malloc(MAX_LEN * sizeof(char));
     config->bmp_file  = malloc(MAX_LEN * sizeof(char));
@@ -87,7 +87,7 @@ int set_steg_algorithm(char* steg_algo, struct config* config){
 }
 
 int set_encrypt_algorithm(char * enc_algo, struct config* config){
-    bool errors = false;
+    // bool errors = false;
     
     if(strcmp(enc_algo, "aes128") == 0){
         config->enc_algorithm = AES128;
@@ -200,7 +200,7 @@ void init_log_message(char* program_name, int arg_num, struct config* program_co
 
 struct config* parse_arguments(int argc, char* argv[]){
 
-    struct config* program_config = init_config(program_config);
+    struct config* program_config = init_config();
     init_log_message(argv[0], argc, program_config);
     bool missing_mode = true;
     for(int i=1; i<argc; i++){
