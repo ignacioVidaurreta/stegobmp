@@ -19,4 +19,7 @@ unsigned char byte_to_uchar(const unsigned char* bits);
 */
 int bin_to_dec(const unsigned char* str, int n_bits);
 
+
+int get_most_signifcant_bit(unsigned char* bits, int len);
+
 #endif /*   BASE_H */

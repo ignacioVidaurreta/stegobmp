@@ -34,3 +34,12 @@ void uchar_to_byte(unsigned char* bits, unsigned char c) {
         }
     }
 }
+
+int get_most_signifcant_bit(unsigned char* bits, int len) {
+    for(int i = 0; i < len ;  i++) {
+        if(bits[i] == ONE) {
+            return pow(2, len-i-1);
+        }
+    }
+    return 256;
+}

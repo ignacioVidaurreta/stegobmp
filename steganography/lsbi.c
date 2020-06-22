@@ -105,6 +105,8 @@ long extract_data_size(pixel*** image, int width, int height, int hop, int* shif
     }
     // update the stream array with its last byte
     size_arr[i++] = byte_to_uchar((const unsigned char*)bits);
+
+    print_array(size_arr,DWORD);
     
     // printf("I got this\n");
     // for(int i=0; i<4; i++) {
@@ -114,6 +116,8 @@ long extract_data_size(pixel*** image, int width, int height, int hop, int* shif
     
     unsigned char * decrypted = RC4(image,size_arr, DWORD);
 
+    print_array(decrypted,DWORD);
+
     return get_len_from_stream(decrypted);
 }
 
@@ -121,7 +125,7 @@ long extract_data_size(pixel*** image, int width, int height, int hop, int* shif
 // extracts a stream of bytes from an image
 static unsigned char* extract(pixel*** image, int width, int height, int hop, int is_encrypted) {
     int shift = 0;
-    long data_size = 44886;//extract_data_size(image, width, height, hop, &shift);
+    long data_size = extract_data_size(image, width, height, hop, &shift);
     int extension_size = EXTENSION;
     long stream_size = DWORD + data_size + extension_size;
 
@@ -175,6 +179,12 @@ static unsigned char* extract(pixel*** image, int width, int height, int hop, in
     return stream;
 }
 
+static int get_hop_from_most_significant_bit(unsigned char pixel_component) {
+    unsigned char* bits = malloc(sizeof(unsigned char)*BYTE);
+    uchar_to_byte(bits, pixel_component);
+    return get_most_signifcant_bit(bits, BYTE);
+}
+
 int run_lsbi_embed(information* info, const unsigned char* stream, long stream_size) {
     printf("\nstarting embed\n");
     int width = info->header->bmp_width;
@@ -182,8 +192,10 @@ int run_lsbi_embed(information* info, const unsigned char* stream, long stream_s
     pixel*** image = info->matrix;
     
     pixel* first_pixel = image[0][0];
-    const int hop = first_pixel->blue;
+    const int hop = get_hop_from_most_significant_bit(first_pixel->blue); 
     
+    printf("HOP: %d\nblue component = %d\n", hop, first_pixel->blue);
+
     //process rc4
     const unsigned char* enc_stream = RC4(image, stream, stream_size);
 
@@ -201,7 +213,8 @@ unsigned char* run_lsbi_extract(information* info, int is_encrypted) {
     int height = info->header->bmp_height;
     pixel*** image = info->matrix;
     pixel* first_pixel = image[0][0];
-    const int hop = first_pixel->blue;  
+    const int hop = get_hop_from_most_significant_bit(first_pixel->blue);  
+    printf("HOP: %d\nblue component = %d\n", hop, first_pixel->blue);
 
     //extract
     unsigned char* extracted_stream = extract(image, width, height, hop, is_encrypted);
