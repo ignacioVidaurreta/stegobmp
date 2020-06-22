@@ -15,6 +15,8 @@
 #include "../include/rc4.h"
 
 #define EXTENSION 5
+#define STARTING_PIXEL 2
+#define STARTING_BYTE 6
 
 static int embed(const unsigned char* stream, int stream_size, pixel*** image, int width, int height, int hop) {
     
@@ -33,11 +35,11 @@ static int embed(const unsigned char* stream, int stream_size, pixel*** image, i
 
     // i is index for stream of bytes
     // First two pixels are reserved for key
-    int i = 0, x = 2, y = 0;
+    int i = 0, x = STARTING_PIXEL, y = 0;
     pixel* pixel;
 
-    int restart_point = x;
-    for(int j = 0, shift  = 0; j < stream_size*BYTE; j+=1) {
+    int restart_point = STARTING_BYTE;
+    for(int j = 0, shift  = STARTING_BYTE; j < stream_size*BYTE; j+=1) {
         // update the bits array with next byte
         if(j % BYTE == 0) {
             uchar_to_byte(bits, stream[i++]);
@@ -75,10 +77,10 @@ long extract_data_size(pixel*** image, int width, int height, int hop, int* shif
     unsigned char size_arr[DWORD];
     pixel* pixel;
 
-    int i=0, x = 2, y = 0;
-    int restart_point = x;
+    int i=0, x = STARTING_PIXEL, y = 0;
+    int restart_point = STARTING_BYTE;
      // we will extract every embeded bit in the image
-    for(int j = 0, shift=0; j < SIZE_OF_LONG_IN_BITS ; j++) {
+    for(int j = 0, shift=STARTING_BYTE; j < SIZE_OF_LONG_IN_BITS ; j++) {
         // update the stream array with last filled byte
         if(j % BYTE == 0 && j != 0) {
             size_arr[i++] = byte_to_uchar((const unsigned char*)bits);
@@ -106,17 +108,16 @@ long extract_data_size(pixel*** image, int width, int height, int hop, int* shif
     // update the stream array with its last byte
     size_arr[i++] = byte_to_uchar((const unsigned char*)bits);
 
-    print_array(size_arr,DWORD);
-    
-    // printf("I got this\n");
-    // for(int i=0; i<4; i++) {
-    //     printf("%d ", size_arr[i]);
-    // }
-    // printf("\n");
+    // print_array(size_arr,DWORD);
     
     unsigned char * decrypted = RC4(image,size_arr, DWORD);
-
-    print_array(decrypted,DWORD);
+    
+    // printf("After RC4\n");
+    // for(int i=0; i<4; i++) {
+    //     printf("%d ", decrypted[i]);
+    // }
+    // printf("\n");
+    // print_array(decrypted,DWORD);
 
     return get_len_from_stream(decrypted);
 }
@@ -140,11 +141,11 @@ static unsigned char* extract(pixel*** image, int width, int height, int hop, in
     unsigned char* bits = malloc(sizeof(unsigned char)*BYTE);
 
     // i is index for stream of bytes
-    int i=0, x = 2, y = 0;
+    int i=0, x = STARTING_PIXEL, y = 0;
     pixel* pixel;
-    int restart_point = x;
+    int restart_point = STARTING_BYTE;
      // we will extract every embeded bit in the image
-    for(int j = 0, shift=0; j < stream_size*BYTE ; j++) {
+    for(int j = 0, shift=STARTING_BYTE; j < stream_size*BYTE ; j++) {
         // update the stream array with last filled byte
         if(j % BYTE == 0 && j != 0) {
             stream[i++] = byte_to_uchar((const unsigned char*)bits);
