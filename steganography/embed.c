@@ -16,27 +16,40 @@
 
 int embed(struct config* program_config) {
     
-    // file processing. TODO: error handling
+    // file processing
     char* filename = program_config->in_file;
     file_data*     data       = get_file_information(filename);
+    if(data == NULL)
+        return ERROR_GET_FILE_INFO;
     unsigned char* stream     = concatenate(data);
+    if(stream == NULL) {
+        free(data);
+        return ERROR_CONCATENATE;
+    }
 
-    // bmp processing. TODO: error handling
+    // bmp processing
     information* info;
     info = bmp_to_matrix(program_config->bmp_file);
-    if(info == NULL)
+    if(info == NULL) {
+        free(data);
+        free(stream);
         return ERROR_BMP_TO_MATRIX;
+    }
     
     // stream size
     long stream_size = DWORD + data->filelen + strlen(data->extension) + 1;
 
-    // encryption. TODO: error handling
+    // encryption
     cipher_info* enc_info;
     int do_encryption = validate_encryption_intention(program_config);
     if(do_encryption) {
         enc_info = run_cipher_process(program_config->enc_algorithm, program_config->enc_mode, program_config->password, ENCRYPT, stream, stream_size, TRUE);
-        if(enc_info == NULL)
+        if(enc_info == NULL) {
+            free(data);
+            free(stream);
+            free(info);
             return ERROR_ENCRYPTION;
+        }
     }
  
     // embed

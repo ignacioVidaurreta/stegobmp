@@ -29,7 +29,7 @@ int extract(struct config* program_config) {
     // validate encryption
     int is_encrypted = validate_encryption(program_config);
     
-    // extract. TODO: error handling
+    // extract
     unsigned char* stream = run_extract_algorithm(program_config, info, is_encrypted);
     if(stream == NULL)
         return ERROR_EXTRACT;
