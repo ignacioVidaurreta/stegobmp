@@ -13,8 +13,8 @@ void test_rc4_decodes_correctly(CuTest *tc){
     information* info = bmp_to_matrix("images/testImage.bmp");
     int* key = malloc(6*sizeof(int));
     
-    char* ciphertext = rc4(info->matrix, expected_plaintext, true);
-    CuAssertStrEquals(tc, expected_plaintext, rc4(info->matrix, ciphertext, false));
+    char* ciphertext = RC4(info->matrix, expected_plaintext, strlen(expected_plaintext)+1);
+    CuAssertStrEquals(tc, expected_plaintext, RC4(info->matrix, ciphertext, strlen(expected_plaintext)+1));
 }
 
 
