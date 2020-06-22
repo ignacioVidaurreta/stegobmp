@@ -105,7 +105,7 @@ int store_byte_repr_and_size(file_data* data){
     data->file_content = buffer;
 
     int len = strlen(buffer);
-    assert(filelen == len);
+    // assert(filelen == len);
 
     return SUCCESS;
 }
