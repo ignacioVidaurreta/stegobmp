@@ -6,7 +6,7 @@
 void print_array(const unsigned char* arr, int size) {
     for (int i = 0 ; i < size ; i++)
         printf("%d ", arr[i]);
-    printf("\n");    
+    printf("\narray size = %d\n\n",size);    
 }
 
 void print_stream(const unsigned char* stream, long len, long filelen) {

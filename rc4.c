@@ -65,7 +65,7 @@ unsigned char* get_key_stream(pixel*** image, unsigned char * key_stream, int N)
 
 unsigned char* apply_xor(const unsigned char* initial_text, long len, unsigned char* key_stream){
 
-    int i=0, j=0, k=0;
+    int i = 0, j = 0, k = 0;
     unsigned char* result = malloc(len * sizeof(char));
     while(k < len){
         i = (i+1) % 256;
@@ -110,7 +110,8 @@ const unsigned char* get_key_from_image(pixel*** image, unsigned char* key){
 
 unsigned char* rc4(pixel*** image, const unsigned char* stream, long len, bool should_encrypt){
     
-    printf("\nin rc4 \n");
+    // printf("\nin rc4 \n");
+    // print_array(stream, len);
 
     unsigned char* key_stream = get_key_stream(image, stream, len);
     
