@@ -55,7 +55,6 @@ information* bmp_to_matrix(const char* filename) {
         return NULL;
     }
 
-    // TODO: malloc errors handling here
     for(int i=0; i<height; i++) {
         matrix[i] = malloc(sizeof(**matrix)*width);
         for(int j=0; j<width; j++) {
@@ -77,7 +76,7 @@ information* bmp_to_matrix(const char* filename) {
     }
     info->matrix = matrix;
     info->header = header;
-    // TODO: deberiamos cerrar el archivo??? probar cuando corarmos todo
+    fclose(file);
     return info;
 }
 

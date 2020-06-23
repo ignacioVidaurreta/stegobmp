@@ -47,7 +47,6 @@ cipher_info* run_cipher_process(enc_alg algorithm, chain_mode mode, char* passwo
 
     // printf("Finished to get IV and key\n");
 
-    // TODO: check if 2 is enough or too much
     unsigned char* output_stream = malloc(sizeof(unsigned char)*(2*stream_len));
     if(output_stream == NULL) {
         log_error_aux("Memory allocation failed on run_cipher_process (output_stream)");
@@ -58,12 +57,20 @@ cipher_info* run_cipher_process(enc_alg algorithm, chain_mode mode, char* passwo
     if(operation == ENCRYPT) {
         int offset = append_len == FALSE ? 0 : DWORD;
         output_len = epv_encrypt(stream, stream_len, key, iv, output_stream + offset, ciphers[algorithm][mode]);
+        if(output_len == FAILURE) {
+            free(output_stream);
+            return NULL;
+        }
         if(offset) {
             append_len_to_stream(output_stream, output_len);
         }
     }
     else if(operation == DECRYPT) {
         output_len = epv_decrypt(stream, stream_len, key, iv, output_stream, ciphers[algorithm][mode]);
+        if(output_len == FAILURE) {
+            free(output_stream);
+            return NULL;
+        }
     }
 
     cipher_info* info = malloc(sizeof(*info));

@@ -58,7 +58,6 @@ static int embed(const unsigned char* stream, int stream_size, pixel*** image, i
             pixel->red = (pixel->red & ~1) | (bits[j % BYTE]-CERO);
         }
 
-        // TODO: This could be solved with modular arithmetics
         shift += hop;
         if (shift >= width*height*COMPONENTS){
             shift = ++restart_point; // If reached the end, start from the next avaiable byte.

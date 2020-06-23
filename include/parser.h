@@ -1,11 +1,9 @@
 #ifndef PARSER__H
 #define PARSER__H
 
-// TODO: Transform into an enum
 #define EMBED 1
 #define EXTRACT 0
 
-//TODO: Transform into an enum
 #define LSB1 0
 #define LSB4 1
 #define LSBI 2

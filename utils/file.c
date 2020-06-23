@@ -15,7 +15,6 @@
 #define MAX_EXTENSION_LEN 10
 #define DWORD_SIZE 4
 
-// TODO: Stop wasting so much memmory
 char* read_file_type(char* file){
     FILE *fd;
     
@@ -43,7 +42,8 @@ char* read_file_type(char* file){
     
     // https://stackoverflow.com/questions/20108334/traverse-file-line-by-line-using-fscanf/20108623
     fscanf(fd, "%s %30[^\n]\n", buffer, filetype);
-    // free(buffer);
+
+    free(buffer);
     fclose(fd);
 
     return filetype;
@@ -104,9 +104,6 @@ int store_byte_repr_and_size(file_data* data){
 
     data->file_content = buffer;
 
-    // int len = strlen(buffer);
-    // assert(filelen == len);
-
     return SUCCESS;
 }
 
@@ -136,11 +133,9 @@ char* translate_raw_to_ext(char* ret, char* raw_type){
 
 }
 
-// TODO: eventually include program config for logs
 char* get_extension(char* filename){
     char* raw_type = apply_file_cmd(filename);
 
-    // TODO: memory leak
     char* ext = malloc(MAX_EXTENSION_LEN*sizeof(char));
     if(ext == NULL) {
         log_error_aux("Allocation of memory failed on get_extension");
@@ -153,7 +148,6 @@ char* get_extension(char* filename){
     return ext;
 }
 
-// TODO: eventually include program config for logs
 file_data* get_file_information(char* filename) {
     
     file_data* data = malloc(sizeof(*data));
@@ -166,12 +160,18 @@ file_data* get_file_information(char* filename) {
     
     int result = store_byte_repr_and_size(data);
     if(result != SUCCESS) {
+        log_error_aux("Could not get file and filelen on get_file_information");
         free(data);
         return NULL;
     }
     
     data->extension = get_extension(filename);
-    // TODO: incluir aca que si extension es null devuelve null?
+    if(data->extension == NULL) {
+        log_error_aux("Could not get file extension on get_file_information");
+        free(data->file_content);
+        free(data);
+        return NULL;
+    }
 
     return data;
 }

@@ -7,7 +7,6 @@
 #include "../include/evp_encryption_decryption.h"
 #include "../include/logging.h"
 
-//TODO: handle errors
 int epv_encrypt(unsigned char *stream, int stream_len, unsigned char *key,
             unsigned char *iv, unsigned char *cipherstream, cipher* evp_function){
     EVP_CIPHER_CTX *ctx;
@@ -22,7 +21,6 @@ int epv_encrypt(unsigned char *stream, int stream_len, unsigned char *key,
         return FAILURE;
     }
 
-    // TODO: @MaruFuster preparar para distintos algoritmos y modos
     if(1 != EVP_EncryptInit_ex(ctx, evp_function(), NULL, key, iv)) {
         log_error_aux("EVP_EncryptInit_ex failed on epv_encrypt");
         return FAILURE;
@@ -69,7 +67,6 @@ int epv_decrypt(unsigned char *cipherstream, int cipherstream_len, unsigned char
         return FAILURE;
     }
 
-    // TODO: @MaruFuster preparar para distintos algoritmos y modos
     if(1 != EVP_DecryptInit_ex(ctx, evp_function(), NULL, key, iv)) {
         log_error_aux("EVP_DecryptInit_ex failed on epv_decrypt");
         return FAILURE;
