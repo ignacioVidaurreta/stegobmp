@@ -7,6 +7,7 @@ FILES = ./*.c ./steganography/*.c ./utils/*.c ./symmetric_cryptography/*.c
 EXEC_NAME = stegobmp
 DEBUG_NAME = stegobmp_debug
 .PHONY = clean
+
 all:
 	@echo "$(GREEN)Compiling ... $(NORMAL)"
 	@mkdir -p log
@@ -20,7 +21,8 @@ sanitized:
 
 
 valgrind: debug
-	valgrind --leak-check=full --show-leak-kinds=all --log-file="log/valgrind_output.txt" ./$(DEBUG_NAME) && cat log/valgrind_output.txt
+	@echo "$(GREEN)Looking for $(CMD_FILE)...$(NORMAL)"
+	valgrind --leak-check=full --show-leak-kinds=all --log-file="log/valgrind_output.txt" $(EXEC_NAME) & cat log/valgrind_output.txt
 
 debug:
 	@echo "$(GREEN)Compiling in DEBUG mode ...$(NORMAL)"
@@ -31,6 +33,8 @@ debug:
 test:
 	@echo "$(GREEN)Running Tests...$(NORMAL)"
 	$(MAKE) -C tests/
+	@touch lsb_test.log
+	./lsb_test.sh
 	@echo "$(GREEN)Done$(NORMAL)"
 
 
