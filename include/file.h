@@ -22,7 +22,7 @@ file_data* get_file_information(char* filename);
 
 /* Recovers, from stream, extension, file_content and filelen. 
    DOES NOT recover filename */
-file_data* split(unsigned char* stream);
+file_data* split(unsigned char* stream, int height, int width);
 
 /* Prepares file_data into a single stream of bytes so it's ready
    to run thorugh lsb1, lsb4 or lsbi */

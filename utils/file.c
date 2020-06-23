@@ -257,7 +257,7 @@ char* get_extension_from_stream(int filelen, unsigned char* stream) {
 /* stream:   extracted when running a lsb algorithm
    filename: for creating the file
 */
-file_data* split(unsigned char* stream) {
+file_data* split(unsigned char* stream, int height, int width) {
     file_data* data    = malloc(sizeof(*data));
     if(data == NULL){
         log_error_aux("Allocation of memory failed on split");
@@ -265,6 +265,12 @@ file_data* split(unsigned char* stream) {
     }
     
     data->filelen      = get_filelen_from_stream(stream);
+    if(data->filelen < 0 || data->filelen > (height*width)) {
+        log_error_aux("Invalid file length on split");
+        free(data);
+        return NULL;
+    }
+
     data->file_content = get_file_content_from_stream(data->filelen, stream);
     data->extension    = get_extension_from_stream(data->filelen, stream);
 

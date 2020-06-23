@@ -164,6 +164,10 @@ static int calculate_extension_size(pixel*** image, int width, int height, long 
 // extracts a stream of bytes from an image
 static unsigned char* extract(pixel*** image, int width, int height, int is_encrypted) {
     long data_size = extract_data_size(image, width, height);
+    if(data_size < 0 || data_size > width*height) {
+        log_error_aux("Invalid data size on lsb1 extract");
+        return NULL;
+    }
     int extension_size = 0;
     if(!is_encrypted) {
         extension_size = calculate_extension_size(image, width, height, data_size);

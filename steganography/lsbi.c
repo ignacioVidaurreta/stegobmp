@@ -117,6 +117,10 @@ long extract_data_size(pixel*** image, int width, int height, int hop, int* shif
 static unsigned char* extract(pixel*** image, int width, int height, int hop, int is_encrypted) {
     int shift = 0;
     long data_size = extract_data_size(image, width, height, hop, &shift);
+    if(data_size < 0 || data_size > width*height) {
+        log_error_aux("Invalid data size on lsbi extract");
+        return NULL;
+    }
     int extension_size = EXTENSION;
     long stream_size = DWORD + data_size + extension_size;
 
@@ -196,6 +200,7 @@ unsigned char* run_lsbi_extract(information* info, int is_encrypted) {
 
     //extract
     unsigned char* extracted_stream = extract(image, width, height, hop, is_encrypted);
+    if(extracted_stream == NULL) return NULL;
     
     //process rc4
     long data_size = extract_data_size(image, width, height, hop, 0);

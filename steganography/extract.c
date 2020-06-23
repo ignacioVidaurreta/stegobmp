@@ -16,8 +16,11 @@
 #include "../include/embed.h"
 #include "../include/extract.h"
 
+static int VERBOSE = 1;
+
 int extract(struct config* program_config) {
     
+    if(VERBOSE) printf("Starting extraction process...\n");
     //print_config(program_config);
 
     //bmp processing
@@ -25,6 +28,7 @@ int extract(struct config* program_config) {
     info = bmp_to_matrix(program_config->bmp_file);
     if(info == NULL)
         return ERROR_BMP_TO_MATRIX;
+    if(VERBOSE) printf("BMP matrix ready to extract\n");
     
     // validate encryption
     int is_encrypted = validate_encryption(program_config);
@@ -33,6 +37,7 @@ int extract(struct config* program_config) {
     unsigned char* stream = run_extract_algorithm(program_config, info, is_encrypted);
     if(stream == NULL)
         return ERROR_EXTRACT;
+    if(VERBOSE) printf("Extraction finished\n");
     
     // decrypt if necessary
     if (is_encrypted) {
@@ -41,20 +46,25 @@ int extract(struct config* program_config) {
         if(dec_info == NULL)
             return ERROR_DECRYPTION;
         stream = dec_info->output_stream;
+        if(VERBOSE) printf("Decryption finished\n");
     }
 
     // split information after running lsb
-    file_data* split_data = split(stream);
+    file_data* split_data = split(stream, info->header->bmp_height, info->header->bmp_width);
     if(split_data == NULL)
         return ERROR_SPLIT;
+    if(VERBOSE) printf("Finished splitting data\n");
+    
     int result = generate_output_file(split_data, program_config->out_file);
     if(result != SUCCESS)
         return result;
+    if(VERBOSE) printf("Output file generated\n");
 
     free(stream);
     free_file_data(split_data);
     free_config(program_config);
     free_information(info);
+    if(VERBOSE) printf("Deallocation of memory completed\n");
 
     return SUCCESS;
 }
