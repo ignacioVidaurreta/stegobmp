@@ -14,18 +14,24 @@
 #include "../include/encryption_decryption.h"
 #include "../include/embed.h"
 
+static int VERBOSE = 1;
+
 int embed(struct config* program_config) {
     
+    if(VERBOSE) printf("Starting embedding process...\n");
     // file processing
     char* filename = program_config->in_file;
     file_data*     data       = get_file_information(filename);
     if(data == NULL)
         return ERROR_GET_FILE_INFO;
+    if(VERBOSE) printf("File information ready\n");
+    
     unsigned char* stream     = concatenate(data);
     if(stream == NULL) {
         free(data);
         return ERROR_CONCATENATE;
     }
+    if(VERBOSE) printf("Stream prepared to embed\n");
 
     // bmp processing
     information* info;
@@ -35,7 +41,8 @@ int embed(struct config* program_config) {
         free(stream);
         return ERROR_BMP_TO_MATRIX;
     }
-    
+    if(VERBOSE) printf("BMP matrix prepared to embed\n");
+
     // stream size
     long stream_size = DWORD + data->filelen + strlen(data->extension) + 1;
 
@@ -50,6 +57,7 @@ int embed(struct config* program_config) {
             free(info);
             return ERROR_ENCRYPTION;
         }
+        if(VERBOSE) printf("Stream encrypted\n");
     }
  
     // embed
@@ -61,18 +69,20 @@ int embed(struct config* program_config) {
     
     if(steg_result != SUCCESS)
         return steg_result;
+    if(VERBOSE) printf("Stream successfully embedded\n");
 
     // bmp processing
     int matrix_to_bpm_result = matrix_to_bmp(info, program_config->out_file);
 
     if(matrix_to_bpm_result != SUCCESS)
         return matrix_to_bpm_result;
-        
+
     // memory release
     free(stream);
     free_file_data(data);
     free_config(program_config);
     free_information(info);
+    if(VERBOSE) printf("Deallocation of memory completed\n");
 
     return SUCCESS;
 }
