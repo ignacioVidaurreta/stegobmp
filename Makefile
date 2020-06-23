@@ -46,5 +46,3 @@ purge-logs:
 	@echo "$(GREEN)Done!$(NORMAL)"
 
 
-## TODO: Missing rules: run and gdb. We need to figure out the whole 
-## arguments first
