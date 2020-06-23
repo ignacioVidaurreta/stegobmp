@@ -67,8 +67,12 @@ int embed(struct config* program_config) {
     else
         steg_result = run_embed_algorithm(program_config, info,(const unsigned char*) stream, stream_size);
     
-    if(steg_result != SUCCESS)
+    if(steg_result != SUCCESS) {
+        free(data);
+        free(stream);
+        free(info);
         return steg_result;
+    }
     if(VERBOSE) printf("Stream successfully embedded\n");
 
     // bmp processing
@@ -80,7 +84,6 @@ int embed(struct config* program_config) {
     // memory release
     free(stream);
     free_file_data(data);
-    free_config(program_config);
     free_information(info);
     if(VERBOSE) printf("Deallocation of memory completed\n");
 

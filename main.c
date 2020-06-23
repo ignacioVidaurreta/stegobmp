@@ -29,15 +29,19 @@ int main(int argc, char * argv[]){
 
         int embed_result = embed(program_config);
 
-        if(embed_result != SUCCESS)
+        if(embed_result != SUCCESS){
+            free_config(program_config);
             return FAILURE;
+        }
             
     }else if( program_config->mode == EXTRACT){
 
         int extract_result = extract(program_config);
 
-        if(extract_result != SUCCESS)
+        if(extract_result != SUCCESS) {
+            free_config(program_config);
             return FAILURE;
+        }
     }
 
     log_info("Programa terminado \n\n", program_config);

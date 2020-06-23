@@ -62,7 +62,6 @@ int extract(struct config* program_config) {
 
     free(stream);
     free_file_data(split_data);
-    free_config(program_config);
     free_information(info);
     if(VERBOSE) printf("Deallocation of memory completed\n");
 
