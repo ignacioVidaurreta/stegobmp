@@ -24,6 +24,8 @@ struct config* init_config(){
 }
 
 void free_config(struct config* config){
+    if(config == NULL) return;
+
     free(config->in_file);
     free(config->bmp_file);
     free(config->out_file);

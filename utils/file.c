@@ -314,6 +314,8 @@ int generate_output_file(file_data* data, char* output_file_name) {
 }
 
 void free_file_data(file_data* data) {
+    if(data == NULL) return;
+
     free(data->file_content);
     free(data->extension);
     free(data);

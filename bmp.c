@@ -12,6 +12,8 @@ void free_header(bmp_header* header) {
 }
 
 void free_pixel_matrix(pixel*** matrix, unsigned int height, unsigned int width) {
+    if(matrix == NULL) return;
+
     for(int i=0; i<height; i++) {
         for(int j=0; j<width;j++){
             free(matrix[i][j]);
@@ -22,6 +24,8 @@ void free_pixel_matrix(pixel*** matrix, unsigned int height, unsigned int width)
 }
 
 void free_information(information* info) {
+    if(info == NULL) return;
+
     free_pixel_matrix(info->matrix, info->header->bmp_height, info->header->bmp_width);
     free_header(info->header);
     free(info);
