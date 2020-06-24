@@ -15,9 +15,12 @@ check_test_failed(){
 	fi
 }
 
+echo "I am a super secret message, 
+if you see me
+you might be a spy" > dummy.txt
 
-lsb_test "LSBI"
 echo "Running LSBI test"
+lsb_test "LSBI"
 check_test_failed $? "LSBI"
 echo "OK"
 
@@ -26,9 +29,9 @@ lsb_test "LSB1"
 check_test_failed $? "LSB1"
 echo "OK"
 
-echo "Running LSB4 test"
-lsb_test "LSB4"
-check_test_failed $? "LSB4"
-echo "OK"
+# echo "Running LSB4 test"
+# lsb_test "LSB4"
+# check_test_failed $? "LSB4"
+# echo "OK"
 
 echo "Testing finished successfully"
