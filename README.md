@@ -16,7 +16,7 @@ The usage varies if you are embedding or extracting.
 **For embedding**
 ```bash
 ./stegobmp -embed -in file -p bmp_file -out output_bmp_file -steg <LSB1|LSB4|LSBI> \
-          [-a <aes128|aes192|aes256|des>] [-m <ecb|efb|ofb|cbc>]
+          [-a <aes128|aes192|aes256|des>] [-m <ECB|EFB|OFB|CBC>] [-pass password]
 ```
 **Important: If you encrypt/decrypt without specifying a password, it won't encrypt the data, just hide it**
 Default values:
@@ -27,7 +27,7 @@ Default values:
 **For extracting**
 ```bash
 ./stegobmp -extract -p bmp_file -out output_bmp_file -steg <LSB1|LSB4|LSBI> \
-          [-a <aes128|aes192|aes256|des>] [-m <ecb|efb|ofb|cbc>] [-pass password]
+          [-a <aes128|aes192|aes256|des>] [-m <ECB|EFB|OFB|CBC>] [-pass password]
 ```
 Where:
 * **-p** specifices the bmp cover image to be used 
@@ -35,7 +35,7 @@ Where:
 * **-steg** the LSB algorithm to use
 * **-a** encryption algorithm
 * **-m** chaining mode 
-* **-pass** password to encrypt with
+* **-pass** password to encrypt (and decrypt) with
 
 ## Authors
 * Clara Guzzetti
