@@ -11,7 +11,7 @@ make all
 ```
 
 This will generate a `stegobmp` file which is the executable of our program.
-The usage varies if you are encrypting or decrypting.
+The usage varies if you are embedding or extracting.
 
 **For embedding**
 ```bash
