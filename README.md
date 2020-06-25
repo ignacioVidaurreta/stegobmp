@@ -26,8 +26,8 @@ Default values:
 
 **For extracting**
 ```bash
-./stegobmp -extract -p bmp_file -out *output_bmp_file -steg <LSB1|LSB4|LSBI> \
-          [-a *<aes128|aes192|aes256|des>] [-m <ecb|efb|ofb|cbc>] [-pass password]
+./stegobmp -extract -p bmp_file -out output_bmp_file -steg <LSB1|LSB4|LSBI> \
+          [-a <aes128|aes192|aes256|des>] [-m <ecb|efb|ofb|cbc>] [-pass password]
 ```
 Where:
 * **-p** specifices the bmp cover image to be used 
